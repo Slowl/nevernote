@@ -1,10 +1,8 @@
-import { Navigate, useLoaderData } from 'react-router-dom'
-import { Session } from '@supabase/supabase-js'
+import { themeDark } from '../../styles'
 import { Auth } from '@supabase/auth-ui-react'
 import { css } from '@linaria/core'
 import { styled } from '@linaria/react'
 import { supabase } from '@/services/supabase'
-import useSupabaseSession from '@/utils/hooks/useSupabaseSession'
 
 //#region STYLE
 const AuthViewContainer = styled.div`
@@ -13,12 +11,12 @@ const AuthViewContainer = styled.div`
 	justify-content: center;
 	align-items: center;
 	> div {
-		width: 480px;
+		width: 510px;
 		display: flex;
 		flex-direction: column;
-		background-color: #202020;
+		background-color: var(--color-black-1);
 		padding: 2.5rem;
-		border: 2px solid #222222;
+		border: 2px solid var(--color-black-2);
 		border-radius: 8px;
 		> div:first-child > div {
 			display: flex;
@@ -34,11 +32,12 @@ const AuthViewContainer = styled.div`
 				padding: .6rem .5rem;
 				border: 0px solid transparent;
 				border-radius: 6px;
-				color: #dddddd;
-				background-color: #2e2e2e;
+				color: var(--color-grey-0);
+				background-color: var(--color-black-4);
+				font-size: .9rem;
 				cursor: pointer;
 				transition: .3s;
-				&:hover { background-color: #363636; }
+				&:hover { background-color: var(--color-black-5); }
 			}
 		}
 	}
@@ -47,7 +46,7 @@ const AuthViewContainer = styled.div`
 const AuthDividerStyle = css`
 	height: 2px;
 	border-radius: 10px;
-	background-color: #282828;
+	background-color: var(--color-black-3);
 	margin: 1.8rem 0 1.6rem;
 `;
 
@@ -61,16 +60,16 @@ const AuthLabelStyle = css`
 const AuthInputStyle = css`
 	display: block;
 	width: 100%;
-	border: 1px solid #363636;
+	border: 1px solid var(--color-black-5);
 	border-radius: 4px;
 	padding: .6rem .5rem;
 	margin-bottom: 1rem;
-	background-color: #202020;
-	color: #dddddd;
+	background-color: var(--color-black-1);
+	color: var(--color-grey-0);
 	transition: .2s;
 	&:focus {
 		outline: 0;
-		border: 1px solid #606060;
+		border: 1px solid var(--color-grey-2);
 	}
 `
 
@@ -84,22 +83,22 @@ const AuthButtonStyle = css`
 	padding: .6rem .5rem;
 	border: 0px solid transparent;
 	border-radius: 6px;
-	color: #dddddd;
-	background-color: #2e2e2e;
+	color: var(--color-grey-0);
+	background-color: var(--color-black-4);
 	cursor: pointer;
 	transition: .3s;
-	&:hover { background-color: #363636; }
+	&:hover { background-color: var(--color-black-5); }
 `
 
 const AuthAnchorStyle = css`
 	display: block;
 	text-align: center;
 	font-size: .8rem;
-	color: #9b9b9b;
+	color: var(--color-grey-1);
 	text-decoration: none;
 	transition: .2s;
 	&:hover {
-		color: #dddddd;
+		color: var(--color-grey-0);
 		text-decoration: underline;
 	}
 	&:first-child { margin-bottom: .2rem; }
@@ -111,7 +110,7 @@ const AuthMessageStyle = css`
   position: relative;
   bottom: -15px;
   padding: .5rem;
-	background-color: #ba5050;
+	background-color: var(--color-black-5);
   border-radius: 8px;
 	font-size: .9rem;
   font-weight: bold;
@@ -120,15 +119,8 @@ const AuthMessageStyle = css`
 
 const AuthView = () => {
 	
-	const session = useLoaderData() as Session | null
-	const currentSession = useSupabaseSession(supabase, session)
-	
-	if (currentSession) {
-		return <Navigate to='/'/>
-	}
-
 	return (
-		<AuthViewContainer>
+		<AuthViewContainer className={themeDark}>
 			<Auth
 				supabaseClient={supabase}
 				providers={['google', 'notion']}

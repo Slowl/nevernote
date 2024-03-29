@@ -1,7 +1,34 @@
 import { createBrowserRouter, redirect } from 'react-router-dom'
+import { TbList, TbUsers, TbCloud, TbArchive } from 'react-icons/tb'
 import { supabase } from '@/services/supabase'
 import App from '@/pages/App'
 import AuthView from '@/pages/Auth'
+import { NotesList } from '@/components/blocks/NotesList'
+import { NoteCategory } from '@/types/index'
+import { getNotesByCategory } from '@/utils/api'
+
+export const routes = {
+	[NoteCategory.MY_NOTES]: {
+		path: '/my-notes',
+		icon: TbList,
+		title: 'My notes', 
+	},
+	[NoteCategory.SHARED]: {
+		path: '/shared-with-me',
+		icon: TbUsers,
+		title: 'Shared with me', 
+	},
+	[NoteCategory.PUBLIC]: {
+		path: '/public',
+		icon: TbCloud,
+		title: 'Public', 
+	},
+	[NoteCategory.ARCHIVED]: {
+		path: '/archived',
+		icon: TbArchive,
+		title: 'Archived', 
+	},
+}
 
 export const router = createBrowserRouter([
 	{
@@ -13,13 +40,35 @@ export const router = createBrowserRouter([
 
 			return session
 		},
+		children: [
+			{
+				path: routes[NoteCategory.MY_NOTES].path,
+				element: <NotesList />,
+				loader: async () => getNotesByCategory(NoteCategory.MY_NOTES)
+			},
+			{
+				path: routes[NoteCategory.SHARED].path,
+				element: <NotesList />,
+				loader: async () => getNotesByCategory(NoteCategory.SHARED)
+			},
+			{
+				path: routes[NoteCategory.PUBLIC].path,
+				element: <NotesList />,
+				loader: () => getNotesByCategory(NoteCategory.PUBLIC)
+			},
+			{
+				path: routes[NoteCategory.ARCHIVED].path,
+				element: <NotesList />,
+				loader: async () => getNotesByCategory(NoteCategory.ARCHIVED)
+			},
+		]
 	},
 	{
 		path: '/login',
 		element: <AuthView />,
 		loader: async () => {
 			const { data: { session } } = await supabase.auth.getSession()
-			if (session) { return redirect('/') }
+			if (session) { return redirect(routes[NoteCategory.MY_NOTES].path) }
 
 			return null
 		},

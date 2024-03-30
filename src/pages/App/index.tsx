@@ -76,8 +76,8 @@ const App = () => {
 			<MainContainer>
 				<EditorContainer>
 					<div className='inputs'>
-						<input type='text' onChange={(event => setTitle(event.target.value))} value={note?.title} />
-						<textarea onChange={(event => setContent(event.target.value))} value={note?.content as string}></textarea>
+						<input type='text' onChange={(event => setTitle(event.target.value))} value={note?.title ?? ''} />
+						<textarea onChange={(event => setContent(event.target.value))} value={note?.content as string ?? ''}></textarea>
 					</div>
 				</EditorContainer>
 				<div

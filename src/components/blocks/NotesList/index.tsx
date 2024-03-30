@@ -1,8 +1,9 @@
-import { Tables } from '@/types/database'
-import { useNoteStore } from '@/store/index'
-import { styled } from '@linaria/react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLoaderData, useLocation, useSearchParams } from 'react-router-dom'
+import { styled } from '@linaria/react'
+import { TbNoteOff, TbPencilPlus } from 'react-icons/tb'
+import { Tables } from '@/types/database'
+import { useNoteStore } from '@/store/index'
 import { routes } from '@/routes/index'
 import { getNotesByCategory } from '@/utils/api'
 import { NoteCategory } from '@/types/index'
@@ -19,11 +20,30 @@ const NotesListContainer = styled.div`
 `
 
 const TopContainer = styled.div`
-	padding: .5rem;
+	padding: 1rem .5rem 1.7rem;
+`
+const CreateNoteButton = styled.div`
+	border: 1px solid var(--color-black-5);
+	background-color: var(--color-black-1);
+	border-radius: 30px;
+	padding: .5rem 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: .85rem;
+	width: 80%;
+	margin: auto;
+	cursor: pointer;
+	transition: .2s;
+
+	&:hover {
+		border-color: var(--color-black-3);
+		background-color: var(--color-black-3);
+	}
 `
 
 const BottomContainer = styled.div`
-	padding: .5rem;
+	padding: .5rem 1rem;
 	flex-grow: 1;
 	overflow-y: auto;
 `
@@ -31,10 +51,20 @@ const BottomContainer = styled.div`
 
 export const NotesListLayout = () => {
 
+	const [_, setSearchParams] = useSearchParams()
+	const setViewedNoteEmpty = useNoteStore((state) => state.setViewedNoteEmpty)
+
+	const handleCreateNewNote = () => {
+		setSearchParams(undefined)
+		setViewedNoteEmpty()
+	}
+
 	return (
 		<NotesListContainer>
 			<TopContainer>
-				top
+				<CreateNoteButton onClick={handleCreateNewNote}>
+					<div>new note</div> <TbPencilPlus />
+				</CreateNoteButton>
 			</TopContainer>
 			<BottomContainer>
 				<Outlet />
@@ -45,6 +75,20 @@ export const NotesListLayout = () => {
 //#endregion
 
 //#region NOTESLIST
+//#region STYLES
+const NoNoteView = styled.div`
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+	> svg {
+		width: 2.5rem;
+		height: 2.5rem;
+	}
+`
+//#endregion
 export const NotesList = () => {
 
 	const prefetchedNotes = useLoaderData() as Tables<'notes'>[]
@@ -77,6 +121,15 @@ export const NotesList = () => {
 	const handleSelectNote = (note: Tables<'notes'>) => {
 		setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
 		selectNote(note)
+	}
+
+	if (notes.length === 0) {
+		return (
+			<NoNoteView>
+				<TbNoteOff />
+				<div> No notes yet ... </div>
+			</NoNoteView>	
+		)
 	}
 
 	return (

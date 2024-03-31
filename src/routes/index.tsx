@@ -1,5 +1,5 @@
 import { createBrowserRouter, redirect } from 'react-router-dom'
-import { TbList, TbUsers, TbCloud, TbArchive } from 'react-icons/tb'
+import { TbList, TbUsers, TbEyeShare, TbArchive } from 'react-icons/tb'
 import { supabase } from '@/services/supabase'
 import App from '@/pages/App'
 import AuthView from '@/pages/Auth'
@@ -20,7 +20,7 @@ export const routes = {
 	},
 	[NoteCategory.PUBLIC]: {
 		path: '/public',
-		icon: TbCloud,
+		icon: TbEyeShare,
 		title: 'Public', 
 	},
 	[NoteCategory.ARCHIVED]: {

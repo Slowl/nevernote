@@ -15,7 +15,7 @@ export const getNotesByCategory = async (category: NoteCategory | string) => {
 		}
 		if (category === NoteCategory.SHARED) {
 			const { data } = await supabase.from('notes')
-				.select()
+				.select(`*, profiles(id, first_name, last_name, avatar)`)
 				.contains('shared_with', [session?.user.id])
 				.is('is_archived', false)
 	

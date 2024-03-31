@@ -50,9 +50,11 @@ const App = () => {
 			if (searchParams.get('viewed')) {
 				getCurrentViewedNote(searchParams.get('viewed')!)
 					.then((currentNote) => setViewedNote(currentNote))
+			} else {
+				setViewedNote(null)
 			}
 		},
-		[],
+		[searchParams.get('viewed')],
 	)
 
 	const getCurrentViewedNote = async (noteId: string) => {

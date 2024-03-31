@@ -8,11 +8,13 @@ import { routes } from '@/routes/index'
 import { getNotesByCategory } from '@/utils/api'
 import { NoteCategory } from '@/types/index'
 import { supabase } from '@/services/supabase'
+import NoteCard from '@/components/ui/NoteCard'
 
 //#region NOTESLIST CONTAINER
 //#region STYLES
 const NotesListContainer = styled.div`
 	min-width: 20rem;
+	max-width: 20rem;
 	background-color: var(--color-black-1);
 	border-radius: 0 20px 20px 0;
 	display: flex;
@@ -76,6 +78,11 @@ export const NotesListLayout = () => {
 
 //#region NOTESLIST
 //#region STYLES
+const NoteCardListContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 1rem 0;
+`
 const NoNoteView = styled.div`
 	height: 100%;
 	display: flex;
@@ -96,6 +103,7 @@ export const NotesList = () => {
 	const { pathname } = location
 	const [_, setSearchParams] = useSearchParams()
 	const [notes, setNotes] = useState(prefetchedNotes)
+	const selectedNote = useNoteStore((state) => state.note)
 	const selectNote = useNoteStore((state) => state.setViewedNote)
 
 	useEffect(
@@ -133,9 +141,15 @@ export const NotesList = () => {
 	}
 
 	return (
-		<>
-			{notes?.map((note: any, index) => <div key={index} onClick={() => handleSelectNote(note)}>{note.title}</div>)}
-		</>
+		<NoteCardListContainer>
+			{notes.map((note: Tables<'notes'> & { profiles?: Tables<'profiles'> }) => (
+				<NoteCard
+					onClick={() => (note.id !== selectedNote?.id) && handleSelectNote(note)}
+					note={note}
+					key={note.id}
+				/>
+			))}
+		</NoteCardListContainer>
 	)
 }
 //#endregion

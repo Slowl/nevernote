@@ -11,4 +11,6 @@ export const themeDark = css`
   --color-grey-0: #dddddd;
   --color-grey-1: #9b9b9b;
   --color-grey-2: #606060;
+	--color-grey-3: #4b4b4b;
+	--color-green-0: #3eca57;
 `;

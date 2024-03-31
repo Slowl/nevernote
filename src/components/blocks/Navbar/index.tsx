@@ -2,7 +2,7 @@ import { styled } from '@linaria/react'
 import { TbLogout2, TbSettings } from 'react-icons/tb'
 import { supabase } from '@/services/supabase'
 import NevernoteLogo from '../../../assets/nevernote_white512.png'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { routes } from '@/routes/index'
 
 //#region STYLES
@@ -32,30 +32,33 @@ const NavContainer = styled.nav`
 		gap: 1rem;
 		flex-shrink: 0;
 	}
+`
 
-	.action-item {
-			color: var(--color-white);
-			background-color: var(--color-black-3);
-			width: 38px; height: 38px;
-			padding: .4rem;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			border-radius: 50%;
-			cursor: pointer;
-			transition: .2s;
-			svg {
-				width: 18px; height: 18px;
-			}
+const NavigationItem = styled.div<{ isCurrent?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px; height: 38px;
+	padding: .4rem;
+	color: var(--color-white);
+	background-color: var(--color-black-3);
+	border: 1px solid ${({ isCurrent }) => isCurrent ? 'var(--color-grey-3)' : 'var(--color-black-3)'};
+	border-radius: 50%;
+	cursor: pointer;
+	transition: .2s;
+	svg {
+		width: 18px; height: 18px;
+	}
 
-			&:hover {
-				background-color: var(--color-black-4);
-			}
-		}
+	&:hover {
+		background-color: var(--color-black-4);
+	}
 `
 //#endregion
 
 const Navbar = () => {
+
+	const { pathname } = useLocation();
 
 	return (
 		<NavContainer>
@@ -63,24 +66,27 @@ const Navbar = () => {
 				<img className='logo' src={NevernoteLogo}/>
 				{Object.values(routes).map((route) => (
 					<Link to={route.path} title={route.title} key={route.path}>
-						<div className='action-item'>
+						<NavigationItem isCurrent={route.path === pathname}>
 							<route.icon />
-						</div>
+						</NavigationItem>
 					</Link>
 				))}
 			</div>
 
 			<div className='bottom-container'>
-				<div className='action-item' title='Settings'>
+				<NavigationItem
+					className='navigation-item'
+					title='Settings'
+				>
 					<TbSettings />
-				</div>
-				<div
-					className='action-item'
+				</NavigationItem>
+				<NavigationItem
+					className='navigation-item'
 					onClick={() => supabase.auth.signOut()}
 					title='Log out'
 				>
 					<TbLogout2 />
-				</div>
+				</NavigationItem>
 			</div>
 		</NavContainer>
 	)

@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { Navigate, useLoaderData, useSearchParams } from 'react-router-dom'
 import { Session } from '@supabase/supabase-js'
 import { styled } from '@linaria/react'
-import { useNoteStore } from '@/store/index'
+import { useNoteStore, useUserStore } from '@/store/index'
 import { supabase } from '@/services/supabase'
 import useSupabaseSession from '@/utils/hooks/useSupabaseSession'
 import Navbar from '@/components/blocks/Navbar'
@@ -38,6 +38,13 @@ const App = () => {
 
 	const session = useLoaderData() as Session | null
 	const currentSession = useSupabaseSession(supabase, session)
+	const setCurrentUser = useUserStore((state) => state.setCurrentUserId)
+	useEffect(
+		() => {
+			setCurrentUser((currentSession?.user.id))
+		},
+		[session],
+	)
 	//#region TO MOVE WITH FORM
 	const [searchParams, _] = useSearchParams()
 	const note = useNoteStore((state) => state.note)

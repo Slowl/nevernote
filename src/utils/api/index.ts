@@ -78,11 +78,13 @@ export const updateNote = async ({
 	id,
 	title,
 	content,
+	is_archived,
 	updated_by,
 }: {
 	id: string;
-	title: string;
-	content: string;
+	title?: string;
+	content?: string;
+	is_archived?: boolean;
 	updated_by: string;
 }) => {
 	try {
@@ -91,6 +93,7 @@ export const updateNote = async ({
 		.update({
 			title,
 			content,
+			is_archived,
 			updated_at: new Date(),
 			updated_by,
 		})
@@ -101,6 +104,29 @@ export const updateNote = async ({
 			throw new Error(`Error while updating a note: ${error}`)
 		}
 
+		return Promise.resolve()
+	} catch (error) {
+		console.error('Error: ', error)
+		throw new Error(`Error: ${error}`)
+	}
+}
+//#endregion
+
+//#region DELETE
+export const deleteNote = async ({ id }: {
+	id: string;
+}) => {
+	try {
+		const { error } = await supabase
+		.from('notes')
+		.delete()
+		.eq('id', id)
+
+		if (error) {
+			console.error('Error while deleting a note: ', error)
+			throw new Error(`Error while deleting a note: ${error}`)
+		}
+		
 		return Promise.resolve()
 	} catch (error) {
 		console.error('Error: ', error)

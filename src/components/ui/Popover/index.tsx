@@ -27,7 +27,8 @@ import {
 	Placement,
 	FloatingPortal,
 	FloatingFocusManager,
-	useId
+	useId,
+	useTransitionStyles
 } from '@floating-ui/react'
 import { styled } from '@linaria/react'
 
@@ -215,23 +216,28 @@ export const PopoverContent = forwardRef<
 	HTMLProps<HTMLDivElement>
 >(function PopoverContent({ style, ...props }, propRef) {
 	const { context: floatingContext, ...context } = usePopoverContext()
+	const { isMounted, styles } = useTransitionStyles(floatingContext, {
+		duration: 200,
+	});
 	const ref = useMergeRefs([context.refs.setFloating, propRef])
 
 	if (!floatingContext.open) return null
 
 	return (
 		<FloatingPortal>
-			<FloatingFocusManager context={floatingContext} modal={context.modal}>
-				<PopoverContentContainer
-					ref={ref}
-					style={{ ...context.floatingStyles, ...style }}
-					aria-labelledby={context.labelId}
-					aria-describedby={context.descriptionId}
-					{...context.getFloatingProps(props)}
-				>
-					{props.children}
-				</PopoverContentContainer>
-			</FloatingFocusManager>
+			{isMounted && (
+				<FloatingFocusManager context={floatingContext} modal={context.modal}>
+					<PopoverContentContainer
+						ref={ref}
+						style={{ ...context.floatingStyles, ...style, ...styles }}
+						aria-labelledby={context.labelId}
+						aria-describedby={context.descriptionId}
+						{...context.getFloatingProps(props)}
+					>
+						{props.children}
+					</PopoverContentContainer>
+				</FloatingFocusManager>
+			)}
 		</FloatingPortal>
 	)
 })

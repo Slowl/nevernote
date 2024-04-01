@@ -16,3 +16,13 @@ export const useNoteStore = create<NoteState>()((set) => ({
 	setTitle: (title) => set((state) => ({ note: { ...state.note, title } })),
 	setContent: (content) => set((state) => ({ note: { ...state.note, content } })),
 }))
+
+interface UserState {
+	currentUserId?: string;
+	setCurrentUserId: (user: UserState['currentUserId']) => void;
+}
+
+export const useUserStore = create<UserState>()((set) => ({
+	currentUserId: undefined,
+	setCurrentUserId: (userId) => set(() => ({ currentUserId: userId }))
+}))

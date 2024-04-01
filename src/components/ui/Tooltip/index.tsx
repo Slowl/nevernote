@@ -167,7 +167,7 @@ export const TooltipContent = forwardRef<
 	const { context, getFloatingProps } = useTooltipContext()
 	const { isMounted, styles } = useTransitionStyles(context, {
 		duration: 300,
-});
+	});
 	const ref = useMergeRefs([context.refs.setFloating, propRef])
 
 	if (!context.open) return null

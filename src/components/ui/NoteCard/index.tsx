@@ -1,9 +1,10 @@
 import { styled } from '@linaria/react'
 import { Tables } from '@/types/database'
 import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX } from 'react-icons/tb'
+import { deleteNote, updateNote } from '@/utils/api'
+import { useNoteStore, useUserStore } from '@/store/index'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
-import { useNoteStore } from '@/store/index'
 import PopoverMenu from '@/components/ui/PopoverMenu'
 
 //#region STYLES
@@ -109,7 +110,7 @@ const StatusTootip = styled.div`
 //#endregion
 
 interface NoteCardProps {
-	note: Pick<Tables<'notes'>, 'id' | 'title' | 'content' | 'public_url' | 'shared_with'> & { profiles?: Tables<'profiles'> };
+	note: Pick<Tables<'notes'>, 'id' | 'title' | 'content' | 'is_archived' | 'public_url' | 'shared_with'> & { profiles?: Tables<'profiles'> };
 	onClick: () => void;
 }
 
@@ -119,16 +120,21 @@ const NoteCard = ({ note, onClick }: {
 }) => {
 
 	const viewedNote = useNoteStore((state) => state.note)
+	const currentUserId = useUserStore((state) => state.currentUserId)
 	const menuList = [
 		{
-			title: 'Archive',
+			title: note.is_archived ? 'Remove from archive' : 'Archive',
 			icon: TbArchive,
-			event: () => console.log('executed')
+			event: () => updateNote({
+				id: note.id,
+				is_archived: note.is_archived ? false : true,
+				updated_by: currentUserId ?? '',
+			})
 		},
 		{
 			title: 'Delete',
 			icon: TbTrash,
-			event: () => console.log('executed')
+			event: () => deleteNote({ id: note.id })
 		},
 		{
 			title: 'Settings',

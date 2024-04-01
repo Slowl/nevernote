@@ -4,6 +4,7 @@ import { supabase } from '@/services/supabase'
 import NevernoteLogo from '../../../assets/nevernote_white512.png'
 import { Link, useLocation } from 'react-router-dom'
 import { routes } from '@/routes/index'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 
 //#region STYLES
 const NavContainer = styled.nav`
@@ -66,27 +67,42 @@ const Navbar = () => {
 				<img className='logo' src={NevernoteLogo}/>
 				{Object.values(routes).map((route) => (
 					<Link to={route.path} title={route.title} key={route.path}>
-						<NavigationItem isCurrent={route.path === pathname}>
-							<route.icon />
-						</NavigationItem>
+						<Tooltip placement='right'>
+							<TooltipTrigger>
+								<NavigationItem isCurrent={route.path === pathname}>
+									<route.icon />
+								</NavigationItem>
+							</TooltipTrigger>
+							<TooltipContent>{route.title}</TooltipContent>
+						</Tooltip>
 					</Link>
 				))}
 			</div>
 
 			<div className='bottom-container'>
-				<NavigationItem
-					className='navigation-item'
-					title='Settings'
-				>
-					<TbSettings />
-				</NavigationItem>
-				<NavigationItem
-					className='navigation-item'
-					onClick={() => supabase.auth.signOut()}
-					title='Log out'
-				>
-					<TbLogout2 />
-				</NavigationItem>
+				<Tooltip placement='right'>
+					<TooltipTrigger>
+						<NavigationItem
+							className='navigation-item'
+							title='Settings'
+						>
+							<TbSettings />
+						</NavigationItem>
+					</TooltipTrigger>
+					<TooltipContent>Settings</TooltipContent>
+				</Tooltip>
+				<Tooltip placement='right'>
+					<TooltipTrigger>
+						<NavigationItem
+							className='navigation-item'
+							onClick={() => supabase.auth.signOut()}
+							title='Log out'
+						>
+							<TbLogout2 />
+						</NavigationItem>
+					</TooltipTrigger>
+					<TooltipContent>Log out</TooltipContent>
+				</Tooltip>
 			</div>
 		</NavContainer>
 	)

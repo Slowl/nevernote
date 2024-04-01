@@ -1,6 +1,7 @@
 import { styled } from '@linaria/react'
 import { Tables } from '@/types/database'
-import { TbUsers, TbEyeShare, TbDotsVertical } from 'react-icons/tb'
+import { TbUsers, TbEyeShare, TbDotsVertical, TbCheck, TbX } from 'react-icons/tb'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
 import { useNoteStore } from '@/store/index'
 
@@ -95,6 +96,15 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 		}
 	}
 `
+const StatusTootip = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0 3px;
+	font-size: .6rem;
+	> svg {
+		width: 10px; height: 10px;
+	}
+`
 //#endregion
 
 interface NoteCardProps {
@@ -136,8 +146,28 @@ const NoteCard = ({ note, onClick }: {
 					)}
 				</div>
 				<div className='status-icons'>
-					<TbUsers style={{ color: note.shared_with ? 'var(--color-green-0)' : 'var(--color-grey-2)' }} />
-					<TbEyeShare style={{ color: note.public_url ? 'var(--color-green-0)' : 'var(--color-grey-2)' }} />
+					<Tooltip placement='bottom'>
+						<TooltipTrigger>
+							<TbUsers style={{ color: note.shared_with ? 'var(--color-green-0)' : 'var(--color-grey-2)' }} />
+						</TooltipTrigger>
+						<TooltipContent>
+							{note.shared_with
+								? <StatusTootip> <TbCheck style={{ color: '#3eca57' }} /> <span>shared</span> </StatusTootip>
+								: <StatusTootip> <TbX style={{ color: '#ca3e3e' }}/> not shared </StatusTootip>
+							}
+						</TooltipContent>
+					</Tooltip>
+					<Tooltip placement='bottom'>
+						<TooltipTrigger>
+							<TbEyeShare style={{ color: note.public_url ? 'var(--color-green-0)' : 'var(--color-grey-2)' }} />
+						</TooltipTrigger>
+						<TooltipContent>
+							{note.public_url
+								? <StatusTootip> <TbCheck style={{ color: '#3eca57' }} /> <span>publicly available</span> </StatusTootip>
+								: <StatusTootip> <TbX style={{ color: '#ca3e3e' }}/> not published </StatusTootip>
+							}
+						</TooltipContent>
+					</Tooltip>
 				</div>
 			</div>
 		</NoteCardContainer>

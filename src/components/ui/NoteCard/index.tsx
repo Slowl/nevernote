@@ -1,9 +1,10 @@
 import { styled } from '@linaria/react'
 import { Tables } from '@/types/database'
-import { TbUsers, TbEyeShare, TbDotsVertical, TbCheck, TbX } from 'react-icons/tb'
+import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX } from 'react-icons/tb'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
 import { useNoteStore } from '@/store/index'
+import PopoverMenu from '@/components/ui/PopoverMenu'
 
 //#region STYLES
 const NoteCardContainer = styled.div<{ isViewed: boolean }>`
@@ -118,6 +119,23 @@ const NoteCard = ({ note, onClick }: {
 }) => {
 
 	const viewedNote = useNoteStore((state) => state.note)
+	const menuList = [
+		{
+			title: 'Archive',
+			icon: TbArchive,
+			event: () => console.log('executed')
+		},
+		{
+			title: 'Delete',
+			icon: TbTrash,
+			event: () => console.log('executed')
+		},
+		{
+			title: 'Settings',
+			icon: TbSettings,
+			event: () => console.log('executed')
+		}
+	]
 
 	return (
 		<NoteCardContainer onClick={onClick} isViewed={viewedNote?.id === note.id}>
@@ -128,7 +146,7 @@ const NoteCard = ({ note, onClick }: {
 				</div>
 				<div className='action-container'>
 					<div className='action-button'>
-						<TbDotsVertical />
+						<PopoverMenu list={menuList} />
 					</div>
 				</div>
 			</div>

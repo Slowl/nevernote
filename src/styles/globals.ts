@@ -7,6 +7,20 @@ export const globals = css`
 		* { margin: 0; }
 		html {
 			font-family: 'Poppins', sans-serif;
+			--color-black: #000;
+			--color-black-0: #1e1e1e;
+			--color-black-1: #202020;
+			--color-black-2: #222222;
+			--color-black-3: #282828;
+			--color-black-4: #2e2e2e;
+			--color-black-5: #363636;
+			--color-white: #fff;
+			--color-grey-0: #dddddd;
+			--color-grey-1: #9b9b9b;
+			--color-grey-2: #606060;
+			--color-grey-3: #4b4b4b;
+			--color-green-0: #3eca57;
+			--color-red-0: #ca3e3e;
 		}
 		body {
 			background-color: #1c1c1c;
@@ -22,5 +36,7 @@ export const globals = css`
 		p, h1, h2, h3, h4, h5, h6 {
 			overflow-wrap: break-word;
 		}
+
+		
 	}
 `

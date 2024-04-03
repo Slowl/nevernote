@@ -1,19 +1,20 @@
 import { styled } from '@linaria/react'
-import { TbLogout2, TbSettings } from 'react-icons/tb'
-import { supabase } from '@/services/supabase'
-import NevernoteLogo from '../../../assets/nevernote_white512.png'
 import { Link, useLocation } from 'react-router-dom'
+import { TbLogout2, TbSettings } from 'react-icons/tb'
 import { routes } from '@/routes/index'
+import { supabase } from '@/services/supabase'
+import { useNoteStore } from '@/store/index'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
+import NevernoteLogo from '../../../assets/nevernote_white512.png'
 
 //#region STYLES
 const NavContainer = styled.nav`
-	background-color: var(--color-black-1);
-	padding: 1rem;
 	display: flex;
 	flex-shrink: 0;
 	flex-direction: column;
 	justify-content: space-between;
+	padding: 1rem;
+	background-color: var(--color-black-1);
 	border-right: 1px solid var(--color-black-4);
 
 	.top-container {
@@ -43,10 +44,11 @@ const NavigationItem = styled.div<{ isCurrent?: boolean }>`
 	padding: .4rem;
 	color: var(--color-white);
 	background-color: var(--color-black-3);
-	border: 1px solid ${({ isCurrent }) => isCurrent ? 'var(--color-grey-3)' : 'var(--color-black-3)'};
+	border: 1px solid ${({ isCurrent }) => isCurrent ? 'var(--color-grey-1)' : 'var(--color-black-3)'};
 	border-radius: 50%;
 	cursor: pointer;
 	transition: .2s;
+
 	svg {
 		width: 18px; height: 18px;
 	}
@@ -59,8 +61,12 @@ const NavigationItem = styled.div<{ isCurrent?: boolean }>`
 
 const Navbar = () => {
 
+	//#region SETUP
 	const { pathname } = useLocation();
+	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
+	//#endregion
 
+	//#region RENDER
 	return (
 		<NavContainer>
 			<div className='top-container'>
@@ -69,11 +75,11 @@ const Navbar = () => {
 					<Link to={route.path} title={route.title} key={route.path}>
 						<Tooltip placement='right'>
 							<TooltipTrigger>
-								<NavigationItem isCurrent={route.path === pathname}>
+								<NavigationItem isCurrent={route.path === pathname} onClick={() => setIsNoteFormLoading(true)}>
 									<route.icon />
 								</NavigationItem>
 							</TooltipTrigger>
-							<TooltipContent>{route.title}</TooltipContent>
+							<TooltipContent> {route.title} </TooltipContent>
 						</Tooltip>
 					</Link>
 				))}
@@ -82,14 +88,11 @@ const Navbar = () => {
 			<div className='bottom-container'>
 				<Tooltip placement='right'>
 					<TooltipTrigger>
-						<NavigationItem
-							className='navigation-item'
-							title='Settings'
-						>
+						<NavigationItem className='navigation-item' title='Settings'>
 							<TbSettings />
 						</NavigationItem>
 					</TooltipTrigger>
-					<TooltipContent>Settings</TooltipContent>
+					<TooltipContent> Settings </TooltipContent>
 				</Tooltip>
 				<Tooltip placement='right'>
 					<TooltipTrigger>
@@ -101,11 +104,12 @@ const Navbar = () => {
 							<TbLogout2 />
 						</NavigationItem>
 					</TooltipTrigger>
-					<TooltipContent>Log out</TooltipContent>
+					<TooltipContent> Log out </TooltipContent>
 				</Tooltip>
 			</div>
 		</NavContainer>
 	)
+	//#endregion
 }
 
 export default Navbar

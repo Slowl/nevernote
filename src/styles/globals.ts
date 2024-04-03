@@ -6,9 +6,10 @@ export const globals = css`
 		*, *::before, *::after { box-sizing: border-box; }
 		* { margin: 0; }
 		html {
+			overflow-x: hidden;
 			font-family: 'Poppins', sans-serif;
 			--color-black: #000;
-			--color-black-0: #1e1e1e;
+			--color-black-0: #1c1c1c;
 			--color-black-1: #202020;
 			--color-black-2: #222222;
 			--color-black-3: #282828;
@@ -23,7 +24,7 @@ export const globals = css`
 			--color-red-0: #ca3e3e;
 		}
 		body {
-			background-color: #1c1c1c;
+			background-color: var(--color-black-0);
 			color: #dddddd;
 			line-height: 1.5;
 			-webkit-font-smoothing: antialiased;
@@ -36,7 +37,5 @@ export const globals = css`
 		p, h1, h2, h3, h4, h5, h6 {
 			overflow-wrap: break-word;
 		}
-
-		
 	}
 `

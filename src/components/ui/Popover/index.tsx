@@ -33,7 +33,7 @@ import {
 import { styled } from '@linaria/react'
 
 //#region HOOKS & TYPES
-interface PopoverOptions {
+export interface PopoverOptions {
 	initialOpen?: boolean;
 	placement?: Placement;
 	modal?: boolean;
@@ -179,33 +179,32 @@ export const PopoverTrigger = forwardRef<
 
 //#region POPOVER CONTENT
 const PopoverContentContainer = styled.div`
+	position: relative;
 	color: #dddddd;
 	background-color: #1e1e1e;
 	border: 1px solid #2e2e2e;
 	border-radius: 4px;
-	position: relative;
+	z-index: 999;
 
 	&:focus-visible {
 		outline: none;
 	}
 	&::after {
 		content: '';
+		position: absolute;
 		display: block;
 		background-color: #2e2e2e;
-		width: 4px;
-		height: 2px;
-		position: absolute;
+		width: 4px; height: 2px;
 		left: -4px;
 		top: 3px;
 		transform: rotate(135deg);
 	}
 	&::before {
+		position: absolute;
 		content: '';
 		display: block;
 		background-color: #2e2e2e	;
-		width: 4px;
-		height: 2px;
-		position: absolute;
+		width: 4px; height: 2px;
 		left: -4px;
 		top: 4px;
 		transform: rotate(45deg);

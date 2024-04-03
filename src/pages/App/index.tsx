@@ -1,79 +1,42 @@
-import { themeDark } from '../../styles'
 import { useEffect } from 'react'
-import { Navigate, useLoaderData, useSearchParams } from 'react-router-dom'
-import { Session } from '@supabase/supabase-js'
+import { Navigate, useLoaderData } from 'react-router-dom'
 import { styled } from '@linaria/react'
-import { useNoteStore, useUserStore } from '@/store/index'
+import { Session } from '@supabase/supabase-js'
 import { supabase } from '@/services/supabase'
 import useSupabaseSession from '@/utils/hooks/useSupabaseSession'
+import { useUserStore } from '@/store/index'
 import Navbar from '@/components/blocks/Navbar'
 import { NotesListLayout } from '@/components/blocks/NotesList'
-import { createNote, updateNote } from '@/utils/api'
+import FormNote from '@/components/blocks/Form/Note'
+import { themeDark } from '../../styles'
 
 //#region STYLE
 const AppContainer = styled.div`
 	width: 100%; height: 100svh;
 	display: flex;
 `
-const MainContainer = styled.div`
-	width: 100%;
-`
-const EditorContainer = styled.div`
-	border: 1px solid white;
-	width: 100%;
-	display: flex;
-
-	.notes {
-		width: 30%;
-	}
-	.inputs {
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-	}
-`
 //#endregion
 
 const App = () => {
 
+	//#region SETUP
 	const session = useLoaderData() as Session | null
 	const currentSession = useSupabaseSession(supabase, session)
 	const setCurrentUser = useUserStore((state) => state.setCurrentUserId)
-	useEffect(
-		() => {
-			setCurrentUser((currentSession?.user.id))
-		},
-		[session],
-	)
-	//#region TO MOVE WITH FORM
-	const [searchParams, _] = useSearchParams()
-	const note = useNoteStore((state) => state.note)
-	const setViewedNote = useNoteStore((state) => state.setViewedNote)
-	const setTitle = useNoteStore((state) => state.setTitle)
-	const setContent = useNoteStore((state) => state.setContent)
-	
-	useEffect(
-		() => {
-			if (searchParams.get('viewed')) {
-				getCurrentViewedNote(searchParams.get('viewed')!)
-					.then((currentNote) => setViewedNote(currentNote))
-			} else {
-				setViewedNote(null)
-			}
-		},
-		[searchParams.get('viewed')],
-	)
-
-	const getCurrentViewedNote = async (noteId: string) => {
-		const { data } = await supabase.from('notes')
-			.select()
-			.eq('id', noteId)
-			.limit(1)
-
-		return data && data[0]
-	}
 	//#endregion
 
+	//#region CORE
+	useEffect(
+		() => {
+			setCurrentUser(currentSession?.user.id)
+
+			return () => { setCurrentUser(undefined) }
+		},
+		[currentSession?.user.id],
+	)
+	//#endregion
+
+	//#region RENDER
 	if (!(currentSession)) {
 		return <Navigate to='/login'/>
 	}
@@ -82,33 +45,10 @@ const App = () => {
 		<AppContainer className={themeDark}>
 			<Navbar />
 			<NotesListLayout />
-			<MainContainer>
-				<EditorContainer>
-					<div className='inputs'>
-						<input type='text' onChange={(event => setTitle(event.target.value))} value={note?.title ?? ''} />
-						<textarea onChange={(event => setContent(event.target.value))} value={note?.content as string ?? ''}></textarea>
-					</div>
-				</EditorContainer>
-				<div
-					style={{ display: 'inline-block', border: '1px solid white', padding: '.5rem' }}
-					onClick={() => note?.id
-						? updateNote({
-							id: note.id,
-							title: note.title ?? '',
-							content: note.content as any,
-							updated_by: currentSession.user.id,
-						})
-						: createNote({
-							title: note?.title ?? '',
-							content: note?.content as any,
-							created_by: currentSession.user.id,
-						})}
-				>
-					send
-				</div>
-			</MainContainer>
+			<FormNote />
 		</AppContainer>
 	)
+	//#endregion
 }
 
 export default App

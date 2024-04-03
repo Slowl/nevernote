@@ -1,11 +1,13 @@
 import { styled } from '@linaria/react'
-import { Tables } from '@/types/database'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX } from 'react-icons/tb'
-import { deleteNote, updateNote } from '@/utils/api'
+import Output from 'editorjs-react-renderer'
 import { useNoteStore, useUserStore } from '@/store/index'
+import { Tables } from '@/types/database'
+import { deleteNote, updateNote } from '@/utils/api'
+import PopoverMenu from '@/components/ui/PopoverMenu'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
-import PopoverMenu from '@/components/ui/PopoverMenu'
 
 //#region STYLES
 const NoteCardContainer = styled.div<{ isViewed: boolean }>`
@@ -30,6 +32,10 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 			.title {
 				font-size: .85rem;
 				font-weight: bold;
+				display: -webkit-box;
+				-webkit-line-clamp: 1;
+				-webkit-box-orient: vertical;  
+				overflow: hidden;
 			}
 			.content-preview {
 				color: var(--color-grey-1);
@@ -42,20 +48,19 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 		}
 
 		.action-container {
-			flex-shrink: 0;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
+			flex-shrink: 0;
 
 			.action-button {
 				display: flex;
 				align-items: center;
 				justify-content: center;
-				width: 22px;
-				height: 22px;
-				font-size: .8rem;
+				width: 22px; height: 22px;
 				padding: .1rem;
 				border-radius: 50%;
+				font-size: .8rem;
 				visibility: hidden;
 				opacity: 0;
 				transition: .2s;
@@ -110,59 +115,73 @@ const StatusTootip = styled.div`
 //#endregion
 
 interface NoteCardProps {
-	note: Pick<Tables<'notes'>, 'id' | 'title' | 'content' | 'is_archived' | 'public_url' | 'shared_with'> & { profiles?: Tables<'profiles'> };
+	note: Pick<
+		Tables<'notes'>, 'id' | 'title' | 'content' | 'is_archived' | 'public_url' | 'shared_with'
+	> & { profiles?: Tables<'profiles'> };
 	onClick: () => void;
 }
 
-const NoteCard = ({ note, onClick }: {
-	note: NoteCardProps['note'],
-	onClick: NoteCardProps['onClick']
-}) => {
+const NoteCard = ({ note, onClick }: NoteCardProps) => {
 
-	const viewedNote = useNoteStore((state) => state.note)
+	//#region SETUP
+	const navigate = useNavigate()
+	const { pathname } = useLocation()
+	const viewedNote = useNoteStore((state) => state.viewedNote)
 	const currentUserId = useUserStore((state) => state.currentUserId)
+	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
+	//#endregion
+
+	//#region EVENTS
+	const handleDeleteNote = (id: string) => {
+		deleteNote({ id })
+		setIsNoteFormLoading(true)
+		navigate(pathname)
+	}
+
 	const menuList = [
 		{
 			title: note.is_archived ? 'Remove from archive' : 'Archive',
 			icon: TbArchive,
-			event: () => updateNote({
+			event: () => currentUserId && updateNote({
 				id: note.id,
-				is_archived: note.is_archived ? false : true,
-				updated_by: currentUserId ?? '',
+				is_archived: !(note.is_archived),
+				updated_by: currentUserId,
 			})
 		},
 		{
 			title: 'Delete',
 			icon: TbTrash,
-			event: () => deleteNote({ id: note.id })
+			event: () => handleDeleteNote(note.id)
 		},
 		{
 			title: 'Settings',
 			icon: TbSettings,
-			event: () => console.log('executed')
+			event: () => console.log('coming soon...')
 		}
 	]
+	//#endregion
 
+	//#region RENDER
 	return (
 		<NoteCardContainer onClick={onClick} isViewed={viewedNote?.id === note.id}>
 			<div className='main-container'>
 				<div className='content-container'>
 					<div className='title'> {note.title} </div>
-					<div className='content-preview'> {note.content as string} </div>
+					<div className='content-preview'> <Output data={note.content} /> </div>
 				</div>
 				<div className='action-container'>
 					<div className='action-button'>
-						<PopoverMenu list={menuList} />
+						<PopoverMenu list={menuList} options={{ placement: 'right-start' }} />
 					</div>
 				</div>
 			</div>
 			<div className='information-container'>
 				<div className='author'>
-					{note.profiles && (
+					{(note.profiles && note.profiles.first_name) && (
 						<>
 							by:
 							<User
-								firstName={note.profiles?.first_name ?? ''}
+								firstName={note.profiles?.first_name}
 								lastName={note.profiles?.last_name}
 								avatar={note.profiles?.avatar}
 							/>
@@ -176,7 +195,7 @@ const NoteCard = ({ note, onClick }: {
 						</TooltipTrigger>
 						<TooltipContent>
 							{note.shared_with
-								? <StatusTootip> <TbCheck style={{ color: '#3eca57' }} /> <span>shared</span> </StatusTootip>
+								? <StatusTootip> <TbCheck style={{ color: '#3eca57' }} /> <span> shared </span> </StatusTootip>
 								: <StatusTootip> <TbX style={{ color: '#ca3e3e' }}/> not shared </StatusTootip>
 							}
 						</TooltipContent>
@@ -187,7 +206,7 @@ const NoteCard = ({ note, onClick }: {
 						</TooltipTrigger>
 						<TooltipContent>
 							{note.public_url
-								? <StatusTootip> <TbCheck style={{ color: '#3eca57' }} /> <span>publicly available</span> </StatusTootip>
+								? <StatusTootip> <TbCheck style={{ color: '#3eca57' }} /> <span> publicly available </span> </StatusTootip>
 								: <StatusTootip> <TbX style={{ color: '#ca3e3e' }}/> not published </StatusTootip>
 							}
 						</TooltipContent>
@@ -196,6 +215,7 @@ const NoteCard = ({ note, onClick }: {
 			</div>
 		</NoteCardContainer>
 	)
+	//#endregion
 }
 
 export default NoteCard

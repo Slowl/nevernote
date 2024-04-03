@@ -1,3 +1,4 @@
+import { OutputData } from '@editorjs/editorjs'
 import { supabase } from '@/services/supabase'
 import { NoteCategory } from '@/types/index'
 
@@ -10,6 +11,7 @@ export const getNotesByCategory = async (category: NoteCategory | string) => {
 				.select()
 				.eq('created_by', session?.user.id)
 				.is('public_url', null).is('is_archived', false)
+				.order('updated_at', { ascending: false })
 	
 			return data
 		}
@@ -18,6 +20,7 @@ export const getNotesByCategory = async (category: NoteCategory | string) => {
 				.select(`*, profiles(id, first_name, last_name, avatar)`)
 				.contains('shared_with', [session?.user.id])
 				.is('is_archived', false)
+				.order('updated_at', { ascending: false })
 	
 			return data
 		}
@@ -26,6 +29,7 @@ export const getNotesByCategory = async (category: NoteCategory | string) => {
 				.select()
 				.eq('created_by', session?.user.id)
 				.not('public_url', 'is', null).is('is_archived', false)
+				.order('updated_at', { ascending: false })
 	
 			return data
 		}
@@ -34,6 +38,7 @@ export const getNotesByCategory = async (category: NoteCategory | string) => {
 				.select()
 				.eq('created_by', session?.user.id)
 				.is('is_archived', true)
+				.order('updated_at', { ascending: false })
 	
 			return data
 		}
@@ -52,13 +57,13 @@ export const createNote = async ({
 	created_by,
 }: {
 	title: string;
-	content: string;
+	content?: OutputData;
 	created_by: string;
 }) => {
 	try {
 		const { error } = await supabase
 		.from('notes')
-		.insert({ title, content, created_by })
+		.insert({ title, content, created_by, is_archived: false })
 
 		if (error) {
 			console.error('Error while creating a note: ', error)
@@ -83,7 +88,7 @@ export const updateNote = async ({
 }: {
 	id: string;
 	title?: string;
-	content?: string;
+	content?: OutputData;
 	is_archived?: boolean;
 	updated_by: string;
 }) => {

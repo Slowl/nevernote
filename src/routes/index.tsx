@@ -1,11 +1,11 @@
 import { createBrowserRouter, redirect } from 'react-router-dom'
 import { TbList, TbUsers, TbEyeShare, TbArchive } from 'react-icons/tb'
 import { supabase } from '@/services/supabase'
+import { NoteCategory } from '@/types/index'
+import { getNotesByCategory } from '@/utils/api'
 import App from '@/pages/App'
 import AuthView from '@/pages/Auth'
 import { NotesList } from '@/components/blocks/NotesList'
-import { NoteCategory } from '@/types/index'
-import { getNotesByCategory } from '@/utils/api'
 
 export const routes = {
 	[NoteCategory.MY_NOTES]: {
@@ -61,7 +61,7 @@ export const router = createBrowserRouter([
 				element: <NotesList />,
 				loader: async () => getNotesByCategory(NoteCategory.ARCHIVED)
 			},
-		]
+		],
 	},
 	{
 		path: '/login',

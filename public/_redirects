@@ -1,0 +1,5 @@
+# Netlify custom url redirection
+https://nevernote.netlify.com/* 301!
+
+# Netlify route redirection
+/* /index.html 200

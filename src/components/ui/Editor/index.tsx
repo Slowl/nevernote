@@ -20,6 +20,10 @@ const EditorContainer = styled.div`
 	.cdx-block {
 		max-width: 100% !important;
 		font-size: .93rem;
+
+		a {
+			color: #0083db;
+		}
 	}
 	.ce-block__content, .ce-toolbar__content {
 		max-width:calc(100% - 120px) !important;
@@ -106,6 +110,14 @@ const EditorContainer = styled.div`
 		background-color: var(--color-black-0);
 		> input {
 			color: var(--color-grey-0);
+		}
+	}
+	.cdx-checklist__item-checkbox-check {
+		width: 18px; height: 18px;
+		border: 0;
+		border-radius: 2px;
+		> svg {
+			left: 0;
 		}
 	}
 `

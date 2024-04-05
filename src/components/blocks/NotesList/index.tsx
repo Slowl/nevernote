@@ -54,13 +54,17 @@ export const NotesListLayout = () => {
 
 	//#region SETUP
 	const navigate = useNavigate()
+	const { pathname } = useLocation()
+	const [searchParams, _] = useSearchParams()
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	//#endregion
 
 	//#region EVENTS
 	const handleCreateNewNote = () => {
-		setIsNoteFormLoading(true)
-		navigate(routes.MY_NOTES.path)
+		if (searchParams.get('viewed') || (pathname !== routes.MY_NOTES.path)) {
+			setIsNoteFormLoading(true)
+			navigate(routes.MY_NOTES.path)
+		}
 	}
 	//#endregion
 
@@ -108,7 +112,6 @@ export const NotesList = () => {
 	const [_, setSearchParams] = useSearchParams()
 	const [notes, setNotes] = useState(prefetchedNotes)
 	const selectedNote = useNoteStore((state) => state.viewedNote)
-	const selectNote = useNoteStore((state) => state.setViewedNote)
 	//#endregion
 
 	//#region CORE
@@ -136,7 +139,6 @@ export const NotesList = () => {
 	//#region EVENTS
 	const handleSelectNote = (note: Tables<'notes'>) => {
 		setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
-		selectNote(note)
 	}
 	//#endregion
 

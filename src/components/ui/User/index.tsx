@@ -39,7 +39,7 @@ const AvatarContainer = styled.div<{ avatar?: UserProps['avatar']; size: UserPro
 	justify-content: center;
 	align-items: center;
 	background-color: var(--color-black-1);
-	background-image: ${({ avatar }) => avatar ? avatar : ''};
+	background-image: ${({ avatar }) => avatar ? `url(${avatar})` : ''};
 	background-position: center;
 	background-size: cover;
 	border-radius: 50%;

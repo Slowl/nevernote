@@ -14,6 +14,7 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 	display: flex;
 	flex-direction: column;
 	gap: .3rem 0;
+	max-height: 7.5rem;
 	padding: .5rem;
 	background-color: var(--color-black-2);
 	border: 1px solid ${({ isViewed }) => isViewed ? 'var(--color-grey-3)' : 'var(--color-black-4)'};
@@ -29,6 +30,8 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 
 		.content-container {
 			flex-grow: 1;
+			overflow-y: hidden;
+			padding-bottom: 10px;
 			.title {
 				font-size: .85rem;
 				font-weight: bold;
@@ -116,7 +119,7 @@ const StatusTootip = styled.div`
 
 interface NoteCardProps {
 	note: Pick<
-		Tables<'notes'>, 'id' | 'title' | 'content' | 'is_archived' | 'public_url' | 'shared_with'
+		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'public_url' | 'shared_with'
 	> & { profiles?: Tables<'profiles'> };
 	onClick: () => void;
 }
@@ -133,9 +136,8 @@ const NoteCard = ({ note, onClick }: NoteCardProps) => {
 
 	//#region EVENTS
 	const handleDeleteNote = (id: string) => {
-		deleteNote({ id })
+		deleteNote({ id }).finally(() => navigate(pathname))
 		setIsNoteFormLoading(true)
-		navigate(pathname)
 	}
 
 	const menuList = [
@@ -169,11 +171,13 @@ const NoteCard = ({ note, onClick }: NoteCardProps) => {
 					<div className='title'> {note.title} </div>
 					<div className='content-preview'> <Output data={note.content} /> </div>
 				</div>
-				<div className='action-container'>
-					<div className='action-button'>
-						<PopoverMenu list={menuList} options={{ placement: 'right-start' }} />
+				{(note.created_by === currentUserId) && (
+					<div className='action-container'>
+						<div className='action-button'>
+							<PopoverMenu list={menuList} options={{ placement: 'right-start' }} />
+						</div>
 					</div>
-				</div>
+				)}
 			</div>
 			<div className='information-container'>
 				<div className='author'>

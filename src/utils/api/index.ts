@@ -61,16 +61,17 @@ export const createNote = async ({
 	created_by: string;
 }) => {
 	try {
-		const { error } = await supabase
+		const { error, data } = await supabase
 		.from('notes')
 		.insert({ title, content, created_by, is_archived: false })
+		.select()
 
 		if (error) {
 			console.error('Error while creating a note: ', error)
 			throw new Error(`Error while creating a note: ${error}`)
 		}
 		
-		return Promise.resolve()
+		return data
 	} catch (error) {
 		console.error('Error: ', error)
 		throw new Error(`Error: ${error}`)

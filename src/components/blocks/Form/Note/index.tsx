@@ -4,6 +4,7 @@ import { useLocation, useSearchParams } from 'react-router-dom'
 import { TbSettings, TbDeviceFloppy, TbPlus } from 'react-icons/tb'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { supabase } from '@/services/supabase'
+import { Tables } from '@/types/database'
 import { createNote, updateNote } from '@/utils/api'
 import { useNoteStore, useUserStore } from '@/store/index'
 import User from '@/components/ui/User'
@@ -126,7 +127,7 @@ const FormNote = () => {
 
 	//#region SETUP
 	const { pathname } = useLocation()
-	const [searchParams, _] = useSearchParams()
+	const [searchParams, setSearchParams] = useSearchParams()
 	const viewedNote = useNoteStore((state) => state.viewedNote)
 	const isNoteFormLoading = useNoteStore((state) => state.isNoteFormLoading)
 	const setViewedNote = useNoteStore((state) => state.setViewedNote)
@@ -198,6 +199,10 @@ const FormNote = () => {
 		return data && data[0]
 	}
 
+	const handleSelectNote = (note: Tables<'notes'>) => {
+		setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
+	}
+
 	const handleCreateOrUpdate = async (note: typeof viewedNote) => {
 		if (currentUserId) {
 			if (note?.id) {
@@ -213,6 +218,7 @@ const FormNote = () => {
 					content: note?.content,
 					created_by: currentUserId,
 				})
+				.then(([note]) => handleSelectNote(note))
 			}
 		}
 	}

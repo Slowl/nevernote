@@ -178,7 +178,7 @@ export const PopoverTrigger = forwardRef<
 //#endregion
 
 //#region POPOVER CONTENT
-const PopoverContentContainer = styled.div`
+const PopoverContentContainer = styled.div<{ placement: string }>`
 	position: relative;
 	color: #dddddd;
 	background-color: #1e1e1e;
@@ -192,7 +192,7 @@ const PopoverContentContainer = styled.div`
 	&::after {
 		content: '';
 		position: absolute;
-		display: block;
+		display: ${({ placement }) => (placement === 'right-start') ? 'block' : 'none'};
 		background-color: #2e2e2e;
 		width: 4px; height: 2px;
 		left: -4px;
@@ -202,7 +202,7 @@ const PopoverContentContainer = styled.div`
 	&::before {
 		position: absolute;
 		content: '';
-		display: block;
+		display: ${({ placement }) => (placement === 'right-start') ? 'block' : 'none'};
 		background-color: #2e2e2e	;
 		width: 4px; height: 2px;
 		left: -4px;
@@ -231,6 +231,7 @@ export const PopoverContent = forwardRef<
 						style={{ ...context.floatingStyles, ...style, ...styles }}
 						aria-labelledby={context.labelId}
 						aria-describedby={context.descriptionId}
+						placement={context.placement}
 						{...context.getFloatingProps(props)}
 					>
 						{props.children}

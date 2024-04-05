@@ -1,6 +1,6 @@
+import { ReactNode } from 'react'
 import { styled } from '@linaria/react'
 import { IconType } from 'react-icons'
-import { TbDotsVertical } from 'react-icons/tb'
 import { Popover, PopoverTrigger, PopoverContent, PopoverOptions } from '@/components/ui/Popover'
 
 //#region STYLES
@@ -43,21 +43,22 @@ const ActionButton = styled.div`
 //#endregion
 
 interface PopoverMenuProps {
+	children: ReactNode;
 	list: {
 		title: string;
 		icon: IconType;
 		event: () => void;
 	}[];
-	options: PopoverOptions
+	options: PopoverOptions;
 }
 
-const PopoverMenu = ({ list, options }: PopoverMenuProps) => {
+const PopoverMenu = ({ children, list, options }: PopoverMenuProps) => {
 
 	return (
 		<Popover {...options}>
 			<PopoverTrigger onClick={(event) => event.stopPropagation()}>
 				<TriggerButton>
-					<TbDotsVertical />
+					{children}
 				</TriggerButton>
 			</PopoverTrigger>
 			<PopoverContent>

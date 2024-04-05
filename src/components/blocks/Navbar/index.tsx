@@ -1,3 +1,4 @@
+import { MouseEvent } from 'react'
 import { styled } from '@linaria/react'
 import { Link, useLocation } from 'react-router-dom'
 import { TbLogout2, TbSettings } from 'react-icons/tb'
@@ -50,10 +51,12 @@ const NavContainer = styled.nav`
 		position: fixed;
 		bottom: 0;
 		padding: .7rem 1rem 1.5rem;
+		border: 0;
+		border-top: 1px solid var(--color-black-4);
 		z-index: 999;
 		.top-container {
 			flex-direction: row;
-			gap: 2rem;
+			gap: 1.5rem;
 			.logo { display: none; }
 		}
 		.bottom-container {
@@ -67,7 +70,7 @@ const NavContainer = styled.nav`
 	};
 `
 
-const NavigationItem = styled.div<{ isCurrent?: boolean, label: string }>`
+const NavigationItem = styled.div<{ isCurrent?: boolean }>`
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -92,12 +95,11 @@ const NavigationItem = styled.div<{ isCurrent?: boolean, label: string }>`
 	.nav-item-label { display: none; }
 
 	@media screen and (max-width: 650px) {
-		width: 34px; height: 34px;
 		.nav-item-label {
 			display: block;
 			position: absolute;
-			bottom: -18px;
-			width: 140%;
+			bottom: -20px;
+			width: 120%;
 			text-align: center;
 			font-size: .55rem;
 		}
@@ -110,6 +112,7 @@ const Navbar = () => {
 	//#region SETUP
 	const { pathname } = useLocation();
 	const currentUser = useUserStore((state) => state.currentUser)
+	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
 	//#endregion
@@ -132,6 +135,12 @@ const Navbar = () => {
 		setIsMobileListNoteVisible(true)
 		setIsNoteFormLoading(true)
 	}
+
+	const toggleMobileNoteList = (event: MouseEvent<HTMLDivElement>) => {
+		event.preventDefault()
+		setIsMobileListNoteVisible(!(isMobileListNoteVisible))
+		setIsNoteFormLoading(false)
+	}
 	//#endregion
 
 	//#region RENDER
@@ -145,8 +154,7 @@ const Navbar = () => {
 							<TooltipTrigger>
 								<NavigationItem
 									isCurrent={route.path === pathname}
-									onClick={handleNavigationClick}
-									label={`${route.title}`}
+									onClick={(event) => (route.path === pathname) ? toggleMobileNoteList(event) :  handleNavigationClick()}
 								>
 									<route.icon />
 									<div className='nav-item-label'> {route.title} </div>
@@ -162,7 +170,7 @@ const Navbar = () => {
 				<div className='desktop-action-container'>
 					<Tooltip placement='right'>
 						<TooltipTrigger>
-							<NavigationItem className='settings-item' title='Settings' label='Settings'>
+							<NavigationItem className='settings-item' title='Settings'>
 								<TbSettings />
 							</NavigationItem>
 						</TooltipTrigger>
@@ -174,7 +182,6 @@ const Navbar = () => {
 								className='settings-item'
 								onClick={() => supabase.auth.signOut()}
 								title='Log out'
-								label='Log out'
 							>
 								<TbLogout2 />
 							</NavigationItem>

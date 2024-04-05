@@ -140,6 +140,7 @@ const FormToolbar = styled.div`
 
 	@media screen and (max-width: 650px) {
 		width: 95%;
+		padding: .6rem .2rem .7rem;
 		.note-informations {
 			gap: .3rem;
 			> div {
@@ -148,7 +149,7 @@ const FormToolbar = styled.div`
 		}
 		.note-actions {
 			.button {
-				padding: .2rem .6rem;
+				padding: .5rem 1rem;
 				font-size: .80rem;
 				> svg {
 					width: 14px; height: 14px;
@@ -179,7 +180,7 @@ const FormNote = () => {
 		() => {
 			setIsNoteFormLoading(true)
 
-			if (searchParams.get('viewed')) {
+			if (searchParams.get('viewed') && searchParams.get('viewed') !== 'new') {
 				getCurrentViewedNote(searchParams.get('viewed')!)
 					.then((currentNote) => {
 						currentNote && setViewedNote(currentNote)
@@ -259,7 +260,7 @@ const FormNote = () => {
 		}
 	}
 	//#endregion
-
+	console.log(viewedNote)
 	//#region RENDER
 	return (
 		<FormNoteContainer>

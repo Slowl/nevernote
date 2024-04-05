@@ -12,6 +12,9 @@ const MenuListContainer = styled.div`
 	> :last-child {
 		border-radius: 0 0 4px 4px;
 	}
+	@media screen and (max-width: 650px) {
+		min-width: 10rem;
+	}
 `
 const TriggerButton = styled.div`
 	display: flex;
@@ -38,6 +41,10 @@ const ActionButton = styled.div`
 
 	&:hover {
 		background-color: var(--color-black-2);
+	}
+	@media screen and (max-width: 650px) {
+		padding: .7rem 1rem;
+		font-size: .9rem;
 	}
 `
 //#endregion

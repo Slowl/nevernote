@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Navigate, useLoaderData } from 'react-router-dom'
+import { Navigate, useLoaderData, useLocation, useNavigate } from 'react-router-dom'
 import { styled } from '@linaria/react'
 import { Session } from '@supabase/supabase-js'
 import { supabase } from '@/services/supabase'
@@ -9,6 +9,7 @@ import Navbar from '@/components/blocks/Navbar'
 import { NotesListLayout } from '@/components/blocks/NotesList'
 import FormNote from '@/components/blocks/Form/Note'
 import { themeDark } from '../../styles'
+import { routes } from '@/routes/index'
 
 //#region STYLE
 const AppContainer = styled.div`
@@ -20,6 +21,8 @@ const AppContainer = styled.div`
 const App = () => {
 
 	//#region SETUP
+	const navigate = useNavigate()
+	const { pathname } = useLocation()
 	const session = useLoaderData() as Session | null
 	const currentSession = useSupabaseSession(supabase, session)
 	const setCurrentUser = useUserStore((state) => state.setCurrentUser)
@@ -34,6 +37,10 @@ const App = () => {
 					.select()
 					.eq('id', currentSession?.user.id)
 					.then(({ data }) => data && setCurrentUser(data[0]))
+			}			
+	
+			if (pathname === '/') {
+				navigate(routes.MY_NOTES.path)
 			}
 
 			return () => { setCurrentUser(undefined) }

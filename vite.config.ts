@@ -10,13 +10,14 @@ export default defineConfig({
 		react(),
 		wyw(),
 		VitePWA({
-			registerType: 'autoUpdate',
+			registerType: 'prompt',
 			includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'maskable-icon-512x512.svg'],
       manifest: {
         name: 'Nevernote',
         short_name: 'Nevernote',
-        description: 'Best and simplest note taking app',
+        description: 'Rich but minimalistic note taking app',
         theme_color: '#1c1c1c',
+				background_color: '#1c1c1c',
         icons: [
           {
             src: 'nevernote-64x64.png',

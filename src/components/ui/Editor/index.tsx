@@ -61,6 +61,10 @@ const EditorContainer = styled.div`
 			background-color: var(--color-black-5);
 			border-radius: 50%;
 		}
+
+		@media screen and (max-width: 650px) {
+			margin: 0 3px;
+		}
 	}
 
 	.ce-inline-toolbar {
@@ -105,6 +109,9 @@ const EditorContainer = styled.div`
 		}
 		.ce-popover-item__title {
 			color: var(--color-grey-0);
+		}
+		@media screen and (max-width: 650px) {
+			bottom: 80px;
 		}
 	}
 	.ce-popover-item:hover:not(.ce-popover-item--no-hover) {

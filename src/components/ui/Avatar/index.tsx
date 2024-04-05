@@ -66,7 +66,7 @@ interface AvatarProps {
 const Avatar = ({ firstName, lastName, avatar, size }: AvatarProps) => {
 	return (
 		<AvatarContainer avatar={avatar} size={size ?? 'sm'}>
-			{!(avatar) && `${firstName?.at(0)?.toUpperCase()}${(lastName) ? lastName.at(0) : '' }`}
+			{!(avatar) && `${firstName && firstName?.at(0)?.toUpperCase()} ${(lastName) ? lastName.at(0) : '' }`}
 		</AvatarContainer>
 	)
 }

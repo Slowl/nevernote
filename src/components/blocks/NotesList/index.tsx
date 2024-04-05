@@ -20,17 +20,21 @@ const NotesListContainer = styled.div<{ isVisible: boolean }>`
 	border-radius: 0 20px 20px 0;
 
 	@media screen and (max-width: 650px) {
+		flex-direction: column-reverse;
 		position: absolute;
 		bottom: ${({ isVisible }) => (isVisible) ? '70px' : '-700px' };
 		min-width: 100%; max-width: 100%;
 		height: 89svh;
 		border-radius: 20px 20px 0 0;
 		z-index: 900;
-		transition: cubic-bezier( 0.165, 0.84, 0.44, 1) .6s;
+		transition: cubic-bezier(0.165, 0.84, 0.44, 1) .7s;
 	}
 `
 const TopContainer = styled.div`
 	padding: 1rem .5rem 1.7rem;
+	@media screen and (max-width: 650px) {
+		padding: 1rem .5rem 1rem;
+	}
 `
 const CreateNoteButton = styled.div`
 	display: flex;
@@ -50,6 +54,9 @@ const CreateNoteButton = styled.div`
 		border-color: var(--color-black-3);
 		background-color: var(--color-black-3);
 	}
+	@media screen and (max-width: 650px) {
+		padding: .7rem 1rem;
+	}
 `
 const BottomContainer = styled.div`
 	padding: .5rem 1rem;
@@ -64,21 +71,30 @@ export const NotesListLayout = () => {
 
 	//#region SETUP
 	const navigate = useNavigate()
-	const { pathname } = useLocation()
-	const [searchParams, _] = useSearchParams()
+	const [searchParams, setSearchParams] = useSearchParams()
 	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
+	const setViewedNote = useNoteStore((state) => state.setViewedNote)
 	//#endregion
 
 	//#region EVENTS
 	const handleCreateNewNote = () => {
-		setIsMobileListNoteVisible(false)
-		setIsNoteFormLoading(false)
-		if (searchParams.get('viewed') || (pathname !== routes.MY_NOTES.path)) {
-			setIsNoteFormLoading(true)
-			navigate(routes.MY_NOTES.path)
+		if (searchParams.get('viewed')) {
+			if ((searchParams.get('viewed') === 'new')) {
+				return
+			}
+			setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: 'new' }))
+			setViewedNote({ title: '', content: {
+					blocks: [],
+					time: 1712106748497,
+					version: '2.29.1'
+				}
+			})
 		}
+		setIsMobileListNoteVisible(false)
+		setIsNoteFormLoading(true)
+		navigate(`${routes.MY_NOTES.path}?viewed=new`)
 	}
 	//#endregion
 

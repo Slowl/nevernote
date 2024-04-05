@@ -118,12 +118,15 @@ const AuthMessageStyle = css`
 //#endregion
 
 const AuthView = () => {
+
+	const currentLocation = window.location
 	
 	return (
 		<AuthViewContainer className={themeDark}>
 			<Auth
 				supabaseClient={supabase}
 				providers={['google', 'notion']}
+				redirectTo={`${currentLocation.origin}/my-notes`}
 				appearance={{
 					extend: false,
 					className: {

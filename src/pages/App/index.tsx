@@ -22,13 +22,19 @@ const App = () => {
 	//#region SETUP
 	const session = useLoaderData() as Session | null
 	const currentSession = useSupabaseSession(supabase, session)
-	const setCurrentUser = useUserStore((state) => state.setCurrentUserId)
+	const setCurrentUser = useUserStore((state) => state.setCurrentUser)
 	//#endregion
 
 	//#region CORE
 	useEffect(
 		() => {
-			setCurrentUser(currentSession?.user.id)
+			if (currentSession?.user.id) {
+				supabase
+					.from('profiles')
+					.select()
+					.eq('id', currentSession?.user.id)
+					.then(({ data }) => data && setCurrentUser(data[0]))
+			}
 
 			return () => { setCurrentUser(undefined) }
 		},

@@ -7,6 +7,7 @@ import { supabase } from '@/services/supabase'
 import { Tables } from '@/types/database'
 import { createNote, updateNote } from '@/utils/api'
 import { useNoteStore, useUserStore } from '@/store/index'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
 import Editor from '@/components/ui/Editor'
 
@@ -16,6 +17,9 @@ const FormNoteContainer = styled.div`
 	flex-direction: column;
 	width: 100%;
 	padding: 1rem .2rem;
+	@media screen and (max-width: 650px) {
+		height: calc(100svh - 55px);
+	}
 `
 const FormInputContainer = styled.div`
 	display: flex;
@@ -26,6 +30,10 @@ const FormInputContainer = styled.div`
 	overflow-y: auto;
 	scrollbar-color: var(--color-black-3) rgba(0,0,0,0);
   scrollbar-width: thin;
+
+	@media screen and (max-width: 650px) {
+		overflow-x: hidden;
+	}
 `
 const FormHead = styled.div`
 	display: flex;
@@ -72,6 +80,13 @@ const FormHead = styled.div`
 			}
 		}
 	}
+	@media screen and (max-width: 650px) {
+		width: calc(100% - 20px);
+		.action-container {
+			right: 15px;
+			top: 10px;
+		}
+	}
 `
 const FormBody = styled.div`
 	display: flex;
@@ -113,6 +128,7 @@ const FormToolbar = styled.div`
 
 			> svg {
 				width: 14px; height: 14px;
+				flex-shrink: 0;
 			}
 
 			&:hover {
@@ -121,7 +137,27 @@ const FormToolbar = styled.div`
 			}
 		}
 	}
+
+	@media screen and (max-width: 650px) {
+		width: 95%;
+		.note-informations {
+			gap: .3rem;
+			> div {
+				font-size: .65rem;
+			}
+		}
+		.note-actions {
+			.button {
+				padding: .2rem .6rem;
+				font-size: .80rem;
+				> svg {
+					width: 14px; height: 14px;
+				}
+			}
+		}
+	}
 `
+
 //#endregion
 const FormNote = () => {
 
@@ -133,7 +169,7 @@ const FormNote = () => {
 	const setViewedNote = useNoteStore((state) => state.setViewedNote)
 	const setTitle = useNoteStore((state) => state.setTitle)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
-	const currentUserId = useUserStore((state) => state.currentUserId)
+	const currentUser = useUserStore((state) => state.currentUser)
 	const updatedBy = useUserStore((state) => state.updatedBy)
 	const setUpdatedBy = useUserStore((state) => state.setUpdatedBy)
 	//#endregion
@@ -204,19 +240,19 @@ const FormNote = () => {
 	}
 
 	const handleCreateOrUpdate = async (note: typeof viewedNote) => {
-		if (currentUserId) {
+		if (currentUser) {
 			if (note?.id) {
 				await updateNote({
 					id: note.id,
 					title: note.title ?? '',
 					content: note.content,
-					updated_by: currentUserId,
+					updated_by: currentUser.id,
 				})
 			} else {
 				await createNote({
 					title: note?.title ?? '',
 					content: note?.content,
-					created_by: currentUserId,
+					created_by: currentUser.id,
 				})
 				.then(([note]) => handleSelectNote(note))
 			}
@@ -266,20 +302,34 @@ const FormNote = () => {
 							/>
 						</>
 					)}
-					<div>{(viewedNote?.updated_at) && (
-						' - ' + new Date(viewedNote?.updated_at).toLocaleDateString('en-US', {
-							year: 'numeric',
-							month: 'long',
-							day: 'numeric',
-							hour: 'numeric',
-							minute: 'numeric',
-							hour12: false
-						})
-					)}
+					<div>
+						{(viewedNote?.updated_at) && (
+							<Tooltip placement='top'>
+								<TooltipTrigger>
+									{new Date(viewedNote?.updated_at).toLocaleDateString('en-US', {
+											year: 'numeric',
+											month: 'long',
+											day: 'numeric',
+										})
+									}
+								</TooltipTrigger>
+								<TooltipContent>
+									{new Date(viewedNote?.updated_at).toLocaleDateString('en-US', {
+										year: 'numeric',
+										month: 'long',
+										weekday: 'long',
+										day: 'numeric',
+										hour: 'numeric',
+										minute: 'numeric',
+										hour12: false
+									})}
+								</TooltipContent>
+							</Tooltip>
+						)}
 					</div>
 				</div>
 				<div className='note-actions'>
-					{(currentUserId) && (
+					{(currentUser) && (
 						<div
 							className='button'
 							onClick={() => handleCreateOrUpdate(viewedNote)}

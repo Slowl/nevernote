@@ -12,12 +12,22 @@ import NoteCard from '@/components/ui/NoteCard'
 
 //#region NOTESLIST CONTAINER
 //#region STYLES
-const NotesListContainer = styled.div`
+const NotesListContainer = styled.div<{ isVisible: boolean }>`
 	display: flex;
 	flex-direction: column;
 	min-width: 20rem; max-width: 20rem;
 	background-color: var(--color-black-1);
 	border-radius: 0 20px 20px 0;
+
+	@media screen and (max-width: 650px) {
+		position: absolute;
+		bottom: ${({ isVisible }) => (isVisible) ? '70px' : '-700px' };
+		min-width: 100%; max-width: 100%;
+		height: 89svh;
+		border-radius: 20px 20px 0 0;
+		z-index: 900;
+		transition: cubic-bezier( 0.165, 0.84, 0.44, 1) .6s;
+	}
 `
 const TopContainer = styled.div`
 	padding: 1rem .5rem 1.7rem;
@@ -56,11 +66,15 @@ export const NotesListLayout = () => {
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
 	const [searchParams, _] = useSearchParams()
+	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
+	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
 	//#endregion
 
 	//#region EVENTS
 	const handleCreateNewNote = () => {
+		setIsMobileListNoteVisible(false)
+		setIsNoteFormLoading(false)
 		if (searchParams.get('viewed') || (pathname !== routes.MY_NOTES.path)) {
 			setIsNoteFormLoading(true)
 			navigate(routes.MY_NOTES.path)
@@ -69,7 +83,7 @@ export const NotesListLayout = () => {
 	//#endregion
 
 	return (
-		<NotesListContainer>
+		<NotesListContainer isVisible={isMobileListNoteVisible}>
 			<TopContainer>
 				<CreateNoteButton onClick={handleCreateNewNote}>
 					<div> New note </div> <TbPencilPlus />
@@ -85,10 +99,16 @@ export const NotesListLayout = () => {
 
 //#region NOTESLIST
 //#region STYLES
-const NoteCardListContainer = styled.div`
+const NoteCardListContainer = styled.div<{ isVisible: boolean }>`
 	display: flex;
 	flex-direction: column;
 	gap: 1rem 0;
+
+	@media screen and (max-width: 650px) {
+		opacity: ${({ isVisible }) => (isVisible) ? 1 : 0};
+		visibility: ${({ isVisible }) => (isVisible) ? 'visible' : 'hidden' };
+		transition: 1s;
+	}
 `
 const NoNoteView = styled.div`
 	display: flex;
@@ -112,6 +132,8 @@ export const NotesList = () => {
 	const [_, setSearchParams] = useSearchParams()
 	const [notes, setNotes] = useState(prefetchedNotes)
 	const selectedNote = useNoteStore((state) => state.viewedNote)
+	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
+	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
 	//#endregion
 
 	//#region CORE
@@ -138,7 +160,10 @@ export const NotesList = () => {
 
 	//#region EVENTS
 	const handleSelectNote = (note: Tables<'notes'>) => {
-		setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
+		setIsMobileListNoteVisible(false)
+		if ((note.id !== selectedNote?.id)) {
+			setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
+		}
 	}
 	//#endregion
 
@@ -153,10 +178,10 @@ export const NotesList = () => {
 	}
 
 	return (
-		<NoteCardListContainer>
+		<NoteCardListContainer isVisible={isMobileListNoteVisible}>
 			{notes.map((note: Tables<'notes'> & { profiles?: Tables<'profiles'> }) => (
 				<NoteCard
-					onClick={() => (note.id !== selectedNote?.id) && handleSelectNote(note)}
+					onClick={() => handleSelectNote(note)}
 					note={note}
 					key={note.id}
 				/>

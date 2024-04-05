@@ -14,9 +14,9 @@ export const routes = {
 		title: 'My notes', 
 	},
 	[NoteCategory.SHARED]: {
-		path: '/shared-with-me',
+		path: '/shared',
 		icon: TbUsers,
-		title: 'Shared with me', 
+		title: 'Shared', 
 	},
 	[NoteCategory.PUBLIC]: {
 		path: '/public',

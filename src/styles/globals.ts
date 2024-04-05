@@ -6,7 +6,7 @@ export const globals = css`
 		*, *::before, *::after { box-sizing: border-box; }
 		* { margin: 0; }
 		html {
-			overflow-x: hidden;
+			overflow: hidden;
 			font-family: 'Poppins', sans-serif;
 			--color-black: #000;
 			--color-black-0: #1c1c1c;

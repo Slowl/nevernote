@@ -20,6 +20,7 @@ const EditorContainer = styled.div`
 	.cdx-block {
 		max-width: 100% !important;
 		font-size: .93rem;
+		padding-bottom: 1rem;
 
 		a {
 			color: #0083db;
@@ -27,6 +28,9 @@ const EditorContainer = styled.div`
 	}
 	.ce-block__content, .ce-toolbar__content {
 		max-width:calc(100% - 120px) !important;
+		@media screen and (max-width: 650px) {
+			max-width:calc(100% - 30px) !important;
+		}
 	}
 	.ce-block--selected > .ce-block__content {
 		color: var(--color-grey-0);

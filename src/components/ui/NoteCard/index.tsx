@@ -1,6 +1,6 @@
 import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX } from 'react-icons/tb'
+import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX, TbDotsVertical } from 'react-icons/tb'
 import Output from 'editorjs-react-renderer'
 import { useNoteStore, useUserStore } from '@/store/index'
 import { Tables } from '@/types/database'
@@ -105,6 +105,13 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 			opacity: 1;
 		}
 	}
+
+	@media screen and (max-width: 650px) {
+		.main-container > .action-container > .action-button {
+			visibility: visible;
+			opacity: 1;
+		}
+	}
 `
 const StatusTootip = styled.div`
 	display: flex;
@@ -130,7 +137,7 @@ const NoteCard = ({ note, onClick }: NoteCardProps) => {
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
 	const viewedNote = useNoteStore((state) => state.viewedNote)
-	const currentUserId = useUserStore((state) => state.currentUserId)
+	const currentUser = useUserStore((state) => state.currentUser)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	//#endregion
 
@@ -144,10 +151,10 @@ const NoteCard = ({ note, onClick }: NoteCardProps) => {
 		{
 			title: note.is_archived ? 'Remove from archive' : 'Archive',
 			icon: TbArchive,
-			event: () => currentUserId && updateNote({
+			event: () => currentUser && updateNote({
 				id: note.id,
 				is_archived: !(note.is_archived),
-				updated_by: currentUserId,
+				updated_by: currentUser.id,
 			})
 		},
 		{
@@ -171,10 +178,12 @@ const NoteCard = ({ note, onClick }: NoteCardProps) => {
 					<div className='title'> {note.title} </div>
 					<div className='content-preview'> <Output data={note.content} /> </div>
 				</div>
-				{(note.created_by === currentUserId) && (
+				{(note.created_by === currentUser?.id) && (
 					<div className='action-container'>
 						<div className='action-button'>
-							<PopoverMenu list={menuList} options={{ placement: 'right-start' }} />
+							<PopoverMenu list={menuList} options={{ placement: 'right-start' }}>
+								<TbDotsVertical />
+							</PopoverMenu>
 						</div>
 					</div>
 				)}

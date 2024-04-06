@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { styled } from '@linaria/react'
-import { Outlet, useLoaderData, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { TbNoteOff, TbPencilPlus } from 'react-icons/tb'
+import { Outlet, useLoaderData, useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
+import { TbNoteOff, TbPlus } from 'react-icons/tb'
 import { routes } from '@/routes/index'
 import { supabase } from '@/services/supabase'
 import { Tables } from '@/types/database'
@@ -16,18 +16,32 @@ const NotesListContainer = styled.div<{ isVisible: boolean }>`
 	display: flex;
 	flex-direction: column;
 	min-width: 20rem; max-width: 20rem;
+	position: relative;
 	background-color: var(--color-black-1);
 	border-radius: 0 20px 20px 0;
 
 	@media screen and (max-width: 650px) {
 		flex-direction: column-reverse;
 		position: absolute;
-		bottom: ${({ isVisible }) => (isVisible) ? '70px' : '-700px' };
+		bottom: 0;
 		min-width: 100%; max-width: 100%;
-		height: 89svh;
+		height: 90svh;
 		border-radius: 20px 20px 0 0;
+		padding-top: 3rem;
+		transform: ${({ isVisible }) => (isVisible) ? 'translateY(-65px)' : 'translateY(110%)' };
 		z-index: 900;
-		transition: cubic-bezier(0.165, 0.84, 0.44, 1) .7s;
+		transition: transform cubic-bezier(0.165, 0.84, 0.44, 1) .65s;
+	}
+`
+const ListTitle = styled.div`
+	display: none;
+	@media screen and (max-width: 650px) {
+		display: block;
+		position: absolute;
+		top: 8px;
+		left: 12px;
+		font-size: 1.2rem;
+		font-weight: bold;
 	}
 `
 const TopContainer = styled.div`
@@ -39,20 +53,20 @@ const TopContainer = styled.div`
 const CreateNoteButton = styled.div`
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: center;
 	width: 80%;
 	padding: .5rem 1rem;
 	margin: auto;
-	background-color: var(--color-black-1);
-	border: 1px solid var(--color-black-5);
+	border: 1px solid var(--color-black-3);
+	background-color: var(--color-black-5);
 	border-radius: 30px;
-	font-size: .85rem;
+	font-size: 1.3rem;
 	cursor: pointer;
 	transition: .2s;
 
 	&:hover {
-		border-color: var(--color-black-3);
-		background-color: var(--color-black-3);
+		border: 1px solid var(--color-grey-3);
+		background-color: var(--color-black-6);
 	}
 	@media screen and (max-width: 650px) {
 		padding: .7rem 1rem;
@@ -64,6 +78,9 @@ const BottomContainer = styled.div`
 	overflow-y: auto;
 	scrollbar-color: var(--color-black-3) rgba(0,0,0,0);
   scrollbar-width: thin;
+	@media screen and (max-width: 650px) {
+		border-top: 1px solid var(--color-black-3);
+	}
 `
 //#endregion
 
@@ -72,6 +89,7 @@ export const NotesListLayout = () => {
 	//#region SETUP
 	const navigate = useNavigate()
 	const [searchParams, setSearchParams] = useSearchParams()
+	const [listTitle, setListTitle] = useState('')
 	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
@@ -82,7 +100,7 @@ export const NotesListLayout = () => {
 	const handleCreateNewNote = () => {
 		if (searchParams.get('viewed')) {
 			if ((searchParams.get('viewed') === 'new')) {
-				return
+				return setIsMobileListNoteVisible(false)
 			}
 			setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: 'new' }))
 			setViewedNote({ title: '', content: {
@@ -100,13 +118,14 @@ export const NotesListLayout = () => {
 
 	return (
 		<NotesListContainer isVisible={isMobileListNoteVisible}>
+			<ListTitle> {listTitle} </ListTitle>
 			<TopContainer>
 				<CreateNoteButton onClick={handleCreateNewNote}>
-					<div> New note </div> <TbPencilPlus />
+					<TbPlus />
 				</CreateNoteButton>
 			</TopContainer>
 			<BottomContainer>
-				<Outlet />
+				<Outlet context={{ setListTitle }}/>
 			</BottomContainer>
 		</NotesListContainer>
 	)
@@ -122,8 +141,7 @@ const NoteCardListContainer = styled.div<{ isVisible: boolean }>`
 
 	@media screen and (max-width: 650px) {
 		opacity: ${({ isVisible }) => (isVisible) ? 1 : 0};
-		visibility: ${({ isVisible }) => (isVisible) ? 'visible' : 'hidden' };
-		transition: 1s;
+		visibility: ${({ isVisible }) => (isVisible) ? 'visible' : 'hidden'};
 	}
 `
 const NoNoteView = styled.div`
@@ -139,11 +157,12 @@ const NoNoteView = styled.div`
 	}
 `
 //#endregion
-export const NotesList = () => {
+export const NotesList = ({ currentPageTitle }: { currentPageTitle: string }) => {
 
 	//#region SETUP
 	const location = useLocation()
 	const { pathname } = location
+	const { setListTitle }: any = useOutletContext()
 	const prefetchedNotes = useLoaderData() as Tables<'notes'>[]
 	const [_, setSearchParams] = useSearchParams()
 	const [notes, setNotes] = useState(prefetchedNotes)
@@ -155,6 +174,7 @@ export const NotesList = () => {
 	//#region CORE
 	useEffect(
 		() => {
+			setListTitle(currentPageTitle)
 			setNotes(prefetchedNotes)
 			const currentRouteIndex = Object.values(routes).findIndex(({ path }) => path === pathname)
 	

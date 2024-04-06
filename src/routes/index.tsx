@@ -14,9 +14,9 @@ export const routes = {
 		title: 'My notes', 
 	},
 	[NoteCategory.SHARED]: {
-		path: '/shared',
+		path: '/shared-with-me',
 		icon: TbUsers,
-		title: 'Shared', 
+		title: 'Shared with me', 
 	},
 	[NoteCategory.PUBLIC]: {
 		path: '/public',
@@ -43,22 +43,22 @@ export const router = createBrowserRouter([
 		children: [
 			{
 				path: routes[NoteCategory.MY_NOTES].path,
-				element: <NotesList />,
+				element: <NotesList currentPageTitle={routes[NoteCategory.MY_NOTES].title} />,
 				loader: async () => getNotesByCategory(NoteCategory.MY_NOTES)
 			},
 			{
 				path: routes[NoteCategory.SHARED].path,
-				element: <NotesList />,
+				element: <NotesList currentPageTitle={routes[NoteCategory.SHARED].title} />,
 				loader: async () => getNotesByCategory(NoteCategory.SHARED)
 			},
 			{
 				path: routes[NoteCategory.PUBLIC].path,
-				element: <NotesList />,
+				element: <NotesList currentPageTitle={routes[NoteCategory.PUBLIC].title} />,
 				loader: () => getNotesByCategory(NoteCategory.PUBLIC)
 			},
 			{
 				path: routes[NoteCategory.ARCHIVED].path,
-				element: <NotesList />,
+				element: <NotesList currentPageTitle={routes[NoteCategory.ARCHIVED].title} />,
 				loader: async () => getNotesByCategory(NoteCategory.ARCHIVED)
 			},
 		],

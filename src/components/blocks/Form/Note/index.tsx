@@ -81,7 +81,7 @@ const FormHead = styled.div`
 		}
 	}
 	@media screen and (max-width: 650px) {
-		width: calc(100% - 20px);
+		width: calc(100% - 35px);
 		.action-container {
 			right: 15px;
 			top: 10px;
@@ -100,6 +100,8 @@ const FormToolbar = styled.div`
 	width: 90%;
 	margin: auto;
 	padding: .5rem 0;
+	position: sticky;
+	bottom: 0;
 	border-top: 1px solid var(--color-black-4);
 
 	.note-informations {
@@ -260,7 +262,7 @@ const FormNote = () => {
 		}
 	}
 	//#endregion
-	console.log(viewedNote)
+
 	//#region RENDER
 	return (
 		<FormNoteContainer>

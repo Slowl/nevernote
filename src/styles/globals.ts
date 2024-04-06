@@ -15,6 +15,7 @@ export const globals = css`
 			--color-black-3: #282828;
 			--color-black-4: #2e2e2e;
 			--color-black-5: #363636;
+			--color-black-6: #3f3f3f;
 			--color-white: #fff;
 			--color-grey-0: #dddddd;
 			--color-grey-1: #9b9b9b;

@@ -33,8 +33,8 @@ const sizes = {
 	xxl: {
 		font: '1.4rem',
 		avatar: {
-			width: '32px',
-			height: '32px',
+			width: '40px',
+			height: '40px',
 		}
 	}
 }

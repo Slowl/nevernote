@@ -50,7 +50,7 @@ const NavContainer = styled.nav`
 		flex-direction: row;
 		position: fixed;
 		bottom: 0;
-		padding: .7rem 1rem 1.5rem;
+		padding: .7rem 1rem;
 		border: 0;
 		border-top: 1px solid var(--color-black-4);
 		z-index: 999;
@@ -92,17 +92,8 @@ const NavigationItem = styled.div<{ isCurrent?: boolean }>`
 		background-color: var(--color-black-4);
 	}
 	
-	.nav-item-label { display: none; }
-
 	@media screen and (max-width: 650px) {
-		.nav-item-label {
-			display: block;
-			position: absolute;
-			bottom: -20px;
-			width: 120%;
-			text-align: center;
-			font-size: .55rem;
-		}
+		width: 42px; height: 42px;
 	}
 `
 //#endregion
@@ -157,7 +148,6 @@ const Navbar = () => {
 									onClick={(event) => (route.path === pathname) ? toggleMobileNoteList(event) :  handleNavigationClick()}
 								>
 									<route.icon />
-									<div className='nav-item-label'> {route.title} </div>
 								</NavigationItem>
 							</TooltipTrigger>
 							<TooltipContent> {route.title} </TooltipContent>

@@ -17,7 +17,7 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 	max-height: 7.5rem;
 	padding: .5rem;
 	background-color: var(--color-black-2);
-	border: 1px solid ${({ isViewed }) => isViewed ? 'var(--color-grey-3)' : 'var(--color-black-4)'};
+	border: 1px solid ${({ isViewed }) => isViewed ? 'var(--color-grey-2)' : 'var(--color-black-6)'};
 	border-radius: 8px;
 	cursor: pointer;
 	transition: .2s;
@@ -47,6 +47,14 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 				-webkit-line-clamp: 2;
 				-webkit-box-orient: vertical;  
 				overflow: hidden;
+				line-height: 1rem;
+				ul {
+					line-height: 1rem;
+					margin: 0;
+				}
+				input[type='checkbox'] {
+					width: 14px !important; height: 14px !important;
+				}
 			}
 		}
 
@@ -97,7 +105,7 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 	}
 
 	&:hover {
-		border: 1px solid var(--color-grey-3);
+		border: 1px solid var(--color-grey-2);
 		transform: translateY(-2px);
 
 		& > .main-container > .action-container > .action-button {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { styled } from '@linaria/react'
 import { Outlet, useLoaderData, useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
 import { TbNoteOff, TbPlus } from 'react-icons/tb'
@@ -25,12 +25,18 @@ const NotesListContainer = styled.div<{ isVisible: boolean }>`
 		position: absolute;
 		bottom: 0;
 		min-width: 100%; max-width: 100%;
-		height: 90svh;
+		height: 88svh;
 		border-radius: 20px 20px 0 0;
 		padding-top: 3rem;
 		transform: ${({ isVisible }) => (isVisible) ? 'translateY(-65px)' : 'translateY(110%)' };
-		z-index: 900;
-		transition: transform cubic-bezier(0.165, 0.84, 0.44, 1) .65s;
+		z-index: 998;
+		transition: transform ease .5s;
+
+		div {
+			opacity: ${({ isVisible }) => (isVisible) ? 1 : 0};
+			visibility: ${({ isVisible }) => (isVisible) ? 'visible' : 'hidden'};
+			transition: .2s;
+		}
 	}
 `
 const ListTitle = styled.div`
@@ -82,6 +88,20 @@ const BottomContainer = styled.div`
 		border-top: 1px solid var(--color-black-3);
 	}
 `
+const MobileOverlay = styled.div<{ isVisible: boolean }>`
+	display: none;
+	width: 100%; height: 100%;
+	position: fixed;
+	top: 0; left: 0;
+	background-color: var(--color-black-0);
+	transition: .4s;
+	z-index: 900;
+	@media screen and (max-width: 650px) {
+		display: block;
+		opacity: ${({ isVisible }) => (isVisible) ? 1 : 0};
+		visibility: ${({ isVisible }) => (isVisible) ? 'visible' : 'hidden'};
+	}
+`
 //#endregion
 
 export const NotesListLayout = () => {
@@ -117,17 +137,20 @@ export const NotesListLayout = () => {
 	//#endregion
 
 	return (
-		<NotesListContainer isVisible={isMobileListNoteVisible}>
-			<ListTitle> {listTitle} </ListTitle>
-			<TopContainer>
-				<CreateNoteButton onClick={handleCreateNewNote}>
-					<TbPlus />
-				</CreateNoteButton>
-			</TopContainer>
-			<BottomContainer>
-				<Outlet context={{ setListTitle }}/>
-			</BottomContainer>
-		</NotesListContainer>
+		<>
+			<NotesListContainer isVisible={isMobileListNoteVisible}>
+				<ListTitle> {listTitle} </ListTitle>
+				<TopContainer>
+					<CreateNoteButton onClick={handleCreateNewNote}>
+						<TbPlus />
+					</CreateNoteButton>
+				</TopContainer>
+				<BottomContainer>
+					<Outlet context={{ setListTitle }}/>
+				</BottomContainer>
+			</NotesListContainer>
+			<MobileOverlay isVisible={isMobileListNoteVisible} />
+		</>
 	)
 }
 //#endregion
@@ -157,7 +180,7 @@ const NoNoteView = styled.div`
 	}
 `
 //#endregion
-export const NotesList = ({ currentPageTitle }: { currentPageTitle: string }) => {
+export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string }) => {
 
 	//#region SETUP
 	const location = useLocation()
@@ -195,12 +218,15 @@ export const NotesList = ({ currentPageTitle }: { currentPageTitle: string }) =>
 	//#endregion
 
 	//#region EVENTS
-	const handleSelectNote = (note: Tables<'notes'>) => {
-		setIsMobileListNoteVisible(false)
-		if ((note.id !== selectedNote?.id)) {
-			setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
-		}
-	}
+	const handleSelectNote = useCallback(
+		(note: Tables<'notes'>) => {
+			setIsMobileListNoteVisible(false)
+			if ((note.id !== selectedNote?.id)) {
+				setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
+			}
+		},
+		[selectedNote?.id],
+	)
 	//#endregion
 
 	//#region RENDER
@@ -225,5 +251,5 @@ export const NotesList = ({ currentPageTitle }: { currentPageTitle: string }) =>
 		</NoteCardListContainer>
 	)
 	//#endregion
-}
+})
 //#endregion

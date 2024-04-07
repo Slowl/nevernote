@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import { styled } from '@linaria/react'
 import EditorJS, { EditorConfig } from '@editorjs/editorjs'
 // @ts-expect-error
@@ -129,6 +129,7 @@ const EditorContainer = styled.div`
 			width: 18px; height: 18px;
 			border: 0;
 			border-radius: 2px;
+			background-color: var(--color-grey-0);
 			> svg {
 				left: 0;
 			}
@@ -149,7 +150,7 @@ const EditorContainer = styled.div`
 `
 //#endregion
 
-const Editor = ({ configuration }: { configuration: EditorConfig; }) => {
+const Editor = memo(({ configuration }: { configuration: EditorConfig; }) => {
 
 	//#region SETUP
 	const editorRef = useRef<EditorJS>()
@@ -163,7 +164,7 @@ const Editor = ({ configuration }: { configuration: EditorConfig; }) => {
 				const editor = new EditorJS({
 					tools: EditorjsPlugins,
 					onReady: () => {
-						const undo = new Undo({ editor, config: { debounceTimer: 500 } })
+						const undo = new Undo({ editor, config: { debounceTimer: 300 } })
 						undo.initialize(configuration.data)
 						new DragDrop(editor)
 					},
@@ -189,6 +190,6 @@ const Editor = ({ configuration }: { configuration: EditorConfig; }) => {
 
 	return <>{configuration.holder}</>
 	//#endregion
-}
+})
 
 export default Editor

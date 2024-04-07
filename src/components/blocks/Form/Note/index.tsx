@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
+import { memo, useEffect } from 'react'
 import { styled } from '@linaria/react'
 import { useLocation, useSearchParams } from 'react-router-dom'
-import { TbSettings, TbDeviceFloppy, TbPlus } from 'react-icons/tb'
+import { TbSettings, TbDeviceFloppy } from 'react-icons/tb'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { supabase } from '@/services/supabase'
 import { Tables } from '@/types/database'
@@ -17,6 +17,7 @@ const FormNoteContainer = styled.div`
 	flex-direction: column;
 	width: 100%;
 	padding: 1rem .2rem;
+	z-index: 0;
 	@media screen and (max-width: 650px) {
 		height: calc(100svh - 55px);
 	}
@@ -162,7 +163,7 @@ const FormToolbar = styled.div`
 `
 
 //#endregion
-const FormNote = () => {
+const FormNote = memo(() => {
 
 	//#region SETUP
 	const { pathname } = useLocation()
@@ -337,7 +338,7 @@ const FormNote = () => {
 							className='button'
 							onClick={() => handleCreateOrUpdate(viewedNote)}
 						>
-							{(viewedNote?.id) ? 'Update' : 'Create'} {(viewedNote?.id) ? <TbDeviceFloppy /> : <TbPlus />}
+							Save <TbDeviceFloppy />
 						</div>
 					)}
 				</div>
@@ -345,6 +346,6 @@ const FormNote = () => {
 		</FormNoteContainer>
 	)
 	//#endregion
-}
+})
 
 export default FormNote

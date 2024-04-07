@@ -63,7 +63,13 @@ export const createNote = async ({
 	try {
 		const { error, data } = await supabase
 		.from('notes')
-		.insert({ title, content, created_by, is_archived: false })
+		.insert({
+			title,
+			content,
+			created_by,
+			updated_at: new Date(),
+			is_archived: false
+		})
 		.select()
 
 		if (error) {

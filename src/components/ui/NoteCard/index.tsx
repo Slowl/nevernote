@@ -13,8 +13,9 @@ import User from '@/components/ui/User'
 const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 	display: flex;
 	flex-direction: column;
+	width: 95%; max-height: 7.5rem;
+	margin: auto;
 	gap: .3rem 0;
-	max-height: 7.5rem;
 	padding: .5rem;
 	background-color: var(--color-black-2);
 	border: 1px solid ${({ isViewed }) => isViewed ? 'var(--color-grey-2)' : 'var(--color-black-6)'};
@@ -35,10 +36,6 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 			.title {
 				font-size: .85rem;
 				font-weight: bold;
-				display: -webkit-box;
-				-webkit-line-clamp: 1;
-				-webkit-box-orient: vertical;  
-				overflow: hidden;
 			}
 			.content-preview {
 				color: var(--color-grey-1);
@@ -48,6 +45,7 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 				-webkit-box-orient: vertical;  
 				overflow: hidden;
 				line-height: 1rem;
+				z-index: 0;
 				ul {
 					line-height: 1rem;
 					margin: 0;
@@ -115,6 +113,7 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 	}
 
 	@media screen and (max-width: 650px) {
+		width: 90%;
 		.main-container > .action-container > .action-button {
 			visibility: visible;
 			opacity: 1;
@@ -180,10 +179,10 @@ const NoteCard = ({ note, onClick }: NoteCardProps) => {
 
 	//#region RENDER
 	return (
-		<NoteCardContainer onClick={onClick} isViewed={viewedNote?.id === note.id}>
+		<NoteCardContainer onClick={(event) => { event.stopPropagation, onClick() }} isViewed={viewedNote?.id === note.id}>
 			<div className='main-container'>
 				<div className='content-container'>
-					<div className='title'> {note.title} </div>
+					<div className='title'> {(note.title.length > 30) ? `${note.title.slice(0, 30)}…` : note.title} </div>
 					<div className='content-preview'> <Output data={note.content} /> </div>
 				</div>
 				{(note.created_by === currentUser?.id) && (

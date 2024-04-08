@@ -11,7 +11,7 @@ import FormNote from '@/components/blocks/Form/Note'
 import { themeDark } from '../../styles'
 import { routes } from '@/routes/index'
 
-//#region STYLE
+//#region STYLES
 const AppContainer = styled.div`
 	width: 100%; height: 100svh;
 	display: flex;

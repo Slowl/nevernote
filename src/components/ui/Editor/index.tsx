@@ -179,7 +179,6 @@ const Editor = memo(({ configuration, onChange }: {
 							setContent(noteContent)
 
 							if (noteContent.blocks[updatedBlockIndex].type === 'checklist') {
-								console.log(updatedBlockIndex)
 								onChange(noteContent)
 							}
 						})

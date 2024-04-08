@@ -140,7 +140,7 @@ const Navbar = () => {
 			<div className='top-container'>
 				<img className='logo' src={NevernoteLogo}/>
 				{Object.values(routes).map((route) => (
-					<Link to={route.path} title={route.title} key={route.path}>
+					<Link to={{ pathname: route.path }} title={route.title} key={route.path}>
 						<Tooltip placement='right'>
 							<TooltipTrigger>
 								<NavigationItem

@@ -19,7 +19,7 @@ const FormNoteContainer = styled.div`
 	padding: 1rem .2rem;
 	z-index: 0;
 	@media screen and (max-width: 650px) {
-		height: calc(100svh - 55px);
+		height: calc(100svh - 48px);
 	}
 `
 const FormInputContainer = styled.div`
@@ -168,6 +168,7 @@ const FormNote = memo(() => {
 	//#region SETUP
 	const { pathname } = useLocation()
 	const [searchParams, setSearchParams] = useSearchParams()
+	const viewedNoteId = searchParams.get('viewed')
 	const viewedNote = useNoteStore((state) => state.viewedNote)
 	const isNoteFormLoading = useNoteStore((state) => state.isNoteFormLoading)
 	const setViewedNote = useNoteStore((state) => state.setViewedNote)
@@ -183,8 +184,8 @@ const FormNote = memo(() => {
 		() => {
 			setIsNoteFormLoading(true)
 
-			if (searchParams.get('viewed') && searchParams.get('viewed') !== 'new') {
-				getCurrentViewedNote(searchParams.get('viewed')!)
+			if (viewedNoteId && viewedNoteId !== 'new') {
+				getCurrentViewedNote(viewedNoteId!)
 					.then((currentNote) => {
 						currentNote && setViewedNote(currentNote)
 						return currentNote
@@ -209,7 +210,7 @@ const FormNote = memo(() => {
 
 			() => { setIsNoteFormLoading(false) }
 		},
-		[searchParams.get('viewed'), pathname],
+		[viewedNoteId, pathname],
 	)
 
 	useHotkeys(
@@ -272,7 +273,8 @@ const FormNote = memo(() => {
 					<input
 						type='text'
 						placeholder={`Write your note's title ...`}
-						onChange={(event => setTitle(event.target.value))} value={viewedNote?.title ?? ''}
+						onChange={(event => setTitle(event.target.value))}
+						value={viewedNote?.title ?? ''}
 					/>
 					<div className='action-container'>
 						<div className='action-button'>

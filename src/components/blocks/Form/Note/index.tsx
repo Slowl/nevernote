@@ -289,6 +289,7 @@ const FormNote = memo(() => {
 								autofocus: false,
 								placeholder: 'Write your note...',
 							}}
+							onChange={(data) => handleCreateOrUpdate({ ...viewedNote, content: data })}
 						/>
 					)}
 				</FormBody>

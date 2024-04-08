@@ -31,12 +31,6 @@ const NotesListContainer = styled.div<{ isVisible: boolean }>`
 		transform: ${({ isVisible }) => (isVisible) ? 'translateY(-65px)' : 'translateY(110%)' };
 		z-index: 998;
 		transition: transform ease .5s;
-
-		div {
-			opacity: ${({ isVisible }) => (isVisible) ? 1 : 0};
-			visibility: ${({ isVisible }) => (isVisible) ? 'visible' : 'hidden'};
-			transition: .2s;
-		}
 	}
 `
 const ListTitle = styled.div`
@@ -161,11 +155,6 @@ const NoteCardListContainer = styled.div<{ isVisible: boolean }>`
 	display: flex;
 	flex-direction: column;
 	gap: 1rem 0;
-
-	@media screen and (max-width: 650px) {
-		opacity: ${({ isVisible }) => (isVisible) ? 1 : 0};
-		visibility: ${({ isVisible }) => (isVisible) ? 'visible' : 'hidden'};
-	}
 `
 const NoNoteView = styled.div`
 	display: flex;
@@ -230,7 +219,7 @@ export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string 
 	//#endregion
 
 	//#region RENDER
-	if (notes.length === 0) {
+	if (!(notes) || (notes.length === 0)) {
 		return (
 			<NoNoteView>
 				<TbNoteOff />

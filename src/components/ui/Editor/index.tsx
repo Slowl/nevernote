@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef } from 'react'
 import { styled } from '@linaria/react'
-import EditorJS, { EditorConfig } from '@editorjs/editorjs'
+import EditorJS, { EditorConfig, OutputData } from '@editorjs/editorjs'
 // @ts-expect-error
 import DragDrop from 'editorjs-drag-drop'
 // @ts-expect-error
@@ -111,7 +111,7 @@ const EditorContainer = styled.div`
 			color: var(--color-grey-0);
 		}
 		@media screen and (max-width: 650px) {
-			bottom: 80px;
+			bottom: 70px;
 		}
 	}
 	.ce-popover-item:hover:not(.ce-popover-item--no-hover) {
@@ -150,7 +150,10 @@ const EditorContainer = styled.div`
 `
 //#endregion
 
-const Editor = memo(({ configuration }: { configuration: EditorConfig; }) => {
+const Editor = memo(({ configuration, onChange }: {
+	configuration: EditorConfig;
+	onChange: (note: OutputData) => void;
+}) => {
 
 	//#region SETUP
 	const editorRef = useRef<EditorJS>()
@@ -170,8 +173,15 @@ const Editor = memo(({ configuration }: { configuration: EditorConfig; }) => {
 					},
 					onChange(api) {
 						requestAnimationFrame(async () => {
+
+							const updatedBlockIndex = api.blocks.getCurrentBlockIndex()
 							const noteContent = await api.saver.save()
 							setContent(noteContent)
+
+							if (noteContent.blocks[updatedBlockIndex].type === 'checklist') {
+								console.log(updatedBlockIndex)
+								onChange(noteContent)
+							}
 						})
 					},
 					...configuration,

@@ -4,7 +4,7 @@ import EditorJS, { EditorConfig, OutputData } from '@editorjs/editorjs'
 // @ts-expect-error
 import DragDrop from 'editorjs-drag-drop'
 // @ts-expect-error
-import Undo from 'editorjs-undo';
+import Undo from 'editorjs-undo'
 import { useNoteStore } from '@/store/index'
 import { EditorjsPlugins } from './config'
 
@@ -180,7 +180,11 @@ const Editor = memo(({ configuration, onChange }: {
 							const noteContent = await api.saver.save()
 							setContent(noteContent)
 
-							if (configuration.data && (noteContent.blocks[updatedBlockIndex].type === 'checklist')) {
+							if (
+								configuration.data?.blocks
+								&& (configuration.data?.blocks.length > 0)
+								&& (noteContent.blocks[updatedBlockIndex].type === 'checklist')
+							) {
 								if (throttlePause) return
 								throttlePause = true
 								

@@ -124,7 +124,6 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 	}
 
 	@media screen and (max-width: 650px) {
-		width: 90%;
 		.main-container > .action-container > .action-button {
 			visibility: visible;
 			opacity: 1;

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX, TbDotsVertical } from 'react-icons/tb'
@@ -38,6 +39,16 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 				font-weight: bold;
 			}
 			.content-preview {
+				position: relative;
+				&::after {
+					display: block;
+					width: 100%; height: 100%;
+					position: absolute;
+					top: 0;
+					content: '';
+					background-color: transparent;
+					z-index: 1000;
+				}
 				color: var(--color-grey-1);
 				font-size: .78rem;
 				display: -webkit-box;
@@ -138,7 +149,7 @@ interface NoteCardProps {
 	onClick: () => void;
 }
 
-const NoteCard = ({ note, onClick }: NoteCardProps) => {
+const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 
 	//#region SETUP
 	const navigate = useNavigate()
@@ -179,7 +190,7 @@ const NoteCard = ({ note, onClick }: NoteCardProps) => {
 
 	//#region RENDER
 	return (
-		<NoteCardContainer onClick={(event) => { event.stopPropagation, onClick() }} isViewed={viewedNote?.id === note.id}>
+		<NoteCardContainer onClick={onClick} isViewed={viewedNote?.id === note.id} key={note.id}>
 			<div className='main-container'>
 				<div className='content-container'>
 					<div className='title'> {(note.title.length > 30) ? `${note.title.slice(0, 30)}…` : note.title} </div>
@@ -236,6 +247,6 @@ const NoteCard = ({ note, onClick }: NoteCardProps) => {
 		</NoteCardContainer>
 	)
 	//#endregion
-}
+})
 
 export default NoteCard

@@ -25,25 +25,21 @@ const App = () => {
 	const { pathname } = useLocation()
 	const session = useLoaderData() as Session | null
 	const currentSession = useSupabaseSession(supabase, session)
-	const setCurrentUser = useUserStore((state) => state.setCurrentUser)
+	const getCurrentUser = useUserStore((state) => state.getCurrentUser)
+	const resetCurrentUser = useUserStore((state) => state.resetCurrentUser)
 	//#endregion
 
 	//#region CORE
 	useEffect(
 		() => {
 			if (currentSession?.user.id) {
-				supabase
-					.from('profiles')
-					.select()
-					.eq('id', currentSession?.user.id)
-					.then(({ data }) => data && setCurrentUser(data[0]))
-			}			
-	
+				getCurrentUser(currentSession.user.id)
+			}
 			if (pathname === '/') {
 				navigate(routes.MY_NOTES.path)
 			}
 
-			return () => { setCurrentUser(undefined) }
+			return () => { resetCurrentUser() }
 		},
 		[currentSession?.user.id],
 	)

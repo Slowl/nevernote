@@ -3,7 +3,6 @@ import { styled } from '@linaria/react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { TbSettings, TbDeviceFloppy } from 'react-icons/tb'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { supabase } from '@/services/supabase'
 import { Tables } from '@/types/database'
 import { createNote, updateNote } from '@/utils/api'
 import { useNoteStore, useUserStore } from '@/store/index'
@@ -168,43 +167,34 @@ const FormNote = memo(() => {
 	//#region SETUP
 	const { pathname } = useLocation()
 	const [searchParams, setSearchParams] = useSearchParams()
+	// NOTE
 	const viewedNoteId = searchParams.get('viewed')
 	const viewedNote = useNoteStore((state) => state.viewedNote)
+	const updatedBy = useNoteStore((state) => state.updatedBy)
 	const isNoteFormLoading = useNoteStore((state) => state.isNoteFormLoading)
-	const setViewedNote = useNoteStore((state) => state.setViewedNote)
+	const getViewedNote = useNoteStore((state) => state.getViewedNote)
+	const getUpdatedBy = useNoteStore((state) => state.getUpdatedBy)
 	const setTitle = useNoteStore((state) => state.setTitle)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
+	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
+	// USER
 	const currentUser = useUserStore((state) => state.currentUser)
-	const updatedBy = useUserStore((state) => state.updatedBy)
-	const setUpdatedBy = useUserStore((state) => state.setUpdatedBy)
 	//#endregion
 	
 	//#region CORE
 	useEffect(
 		() => {
 			setIsNoteFormLoading(true)
-
 			if (viewedNoteId && viewedNoteId !== 'new') {
-				getCurrentViewedNote(viewedNoteId!)
-					.then((currentNote) => {
-						currentNote && setViewedNote(currentNote)
-						return currentNote
-					})
+				getViewedNote(viewedNoteId)
 					.then((currentNote) => {
 						if (currentNote?.updated_by) {
-							getUpdatedByUser(currentNote.updated_by)
-								.then((user) => user && setUpdatedBy(user))
+							getUpdatedBy(currentNote.updated_by)
 						}
 					})
-				.finally(() => setIsNoteFormLoading(false))
+					.finally(() => setIsNoteFormLoading(false))
 			} else {
-				setTitle('')
-				setViewedNote({ title: '', content: {
-						blocks: [],
-						time: 1712106748497,
-						version: '2.29.1'
-					}
-				})
+				resetViewedNote()
 				setIsNoteFormLoading(false)
 			}
 
@@ -222,24 +212,6 @@ const FormNote = memo(() => {
 	//#endregion
 	
 	//#region EVENTS
-	const getCurrentViewedNote = async (noteId: string) => {
-		const { data } = await supabase.from('notes')
-			.select()
-			.eq('id', noteId)
-			.limit(1)
-
-		return data && data[0]
-	}
-
-	const getUpdatedByUser = async (userId: string) => {
-		const { data } = await supabase.from('profiles')
-			.select()
-			.eq('id', userId)
-			.limit(1)
-		
-		return data && data[0]
-	}
-
 	const handleSelectNote = (note: Tables<'notes'>) => {
 		setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
 	}

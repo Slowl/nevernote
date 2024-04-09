@@ -1,11 +1,11 @@
-import { memo, useCallback, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, memo, useCallback, useEffect, useState } from 'react'
 import { styled } from '@linaria/react'
-import { Outlet, useLoaderData, useRevalidator, useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
+import { Outlet, useLoaderData, useRevalidator, useNavigate, useOutletContext, useSearchParams, useLocation } from 'react-router-dom'
 import { TbNoteOff, TbPlus } from 'react-icons/tb'
 import { routes } from '@/routes/index'
 import { supabase } from '@/services/supabase'
 import { Tables } from '@/types/database'
-import { useNoteStore } from '@/store/index'
+import { useGeneralStore, useNoteStore } from '@/store/index'
 import NoteCard from '@/components/ui/NoteCard'
 
 //#region NOTESLIST CONTAINER
@@ -102,10 +102,10 @@ export const NotesListLayout = () => {
 	const navigate = useNavigate()
 	const [searchParams, setSearchParams] = useSearchParams()
 	const [listTitle, setListTitle] = useState('')
-	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
-	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
-	const setViewedNote = useNoteStore((state) => state.setViewedNote)
+	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
+	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
+	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
 	//#endregion
 
 	//#region EVENTS
@@ -115,12 +115,7 @@ export const NotesListLayout = () => {
 				return setIsMobileListNoteVisible(false)
 			}
 			setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: 'new' }))
-			setViewedNote({ title: '', content: {
-					blocks: [],
-					time: 1712106748497,
-					version: '2.29.1'
-				}
-			})
+			resetViewedNote()
 		}
 		setIsMobileListNoteVisible(false)
 		setIsNoteFormLoading(true)
@@ -172,13 +167,13 @@ export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string 
 	//#region SETUP
 	const location = useLocation()
 	const { pathname } = location
-	const { setListTitle }: any = useOutletContext()
+	const { setListTitle }: { setListTitle: Dispatch<SetStateAction<string>> } = useOutletContext()
 	const prefetchedNotes = useLoaderData() as Tables<'notes'>[]
 	const revalidator = useRevalidator()
 	const [_, setSearchParams] = useSearchParams()
 	const selectedNote = useNoteStore((state) => state.viewedNote)
-	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
-	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
+	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
+	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
 	//#endregion
 
 	//#region CORE

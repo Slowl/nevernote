@@ -54,7 +54,7 @@ export const router = createBrowserRouter([
 			{
 				path: routes[NoteCategory.PUBLIC].path,
 				element: <NotesList currentPageTitle={routes[NoteCategory.PUBLIC].title} />,
-				loader: () => getNotesByCategory(NoteCategory.PUBLIC)
+				loader: async () => getNotesByCategory(NoteCategory.PUBLIC)
 			},
 			{
 				path: routes[NoteCategory.ARCHIVED].path,

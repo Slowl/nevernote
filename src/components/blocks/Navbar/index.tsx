@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { TbLogout2, TbSettings } from 'react-icons/tb'
 import { routes } from '@/routes/index'
 import { supabase } from '@/services/supabase'
-import { useNoteStore, useUserStore } from '@/store/index'
+import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import PopoverMenu from '@/components/ui/PopoverMenu'
 import Avatar from '@/components/ui/Avatar'
@@ -103,9 +103,9 @@ const Navbar = () => {
 	//#region SETUP
 	const { pathname } = useLocation();
 	const currentUser = useUserStore((state) => state.currentUser)
-	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
-	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
+	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
+	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
 	//#endregion
 
 	//#region EVENTS
@@ -145,7 +145,7 @@ const Navbar = () => {
 							<TooltipTrigger>
 								<NavigationItem
 									isCurrent={route.path === pathname}
-									onClick={(event) => (route.path === pathname) ? toggleMobileNoteList(event) :  handleNavigationClick()}
+									onClick={(event) => (route.path === pathname) ? toggleMobileNoteList(event) : handleNavigationClick()}
 								>
 									<route.icon />
 								</NavigationItem>

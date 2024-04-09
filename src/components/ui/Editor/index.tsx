@@ -161,8 +161,10 @@ const Editor = memo(({ configuration, onChange }: {
 	//#endregion
 
 	//#region CORE
+	let throttlePause: boolean;
 	useEffect(
 		() => {
+			let throttleTimeout: NodeJS.Timeout
 			if (!editorRef.current) {
 				const editor = new EditorJS({
 					tools: EditorjsPlugins,
@@ -178,14 +180,26 @@ const Editor = memo(({ configuration, onChange }: {
 							const noteContent = await api.saver.save()
 							setContent(noteContent)
 
-							if (noteContent.blocks[updatedBlockIndex].type === 'checklist') {
-								onChange(noteContent)
+							if (configuration.data && (noteContent.blocks[updatedBlockIndex].type === 'checklist')) {
+								if (throttlePause) return
+								throttlePause = true
+								
+								throttleTimeout = setTimeout(() => {
+									onChange(noteContent)
+									
+									throttlePause = false
+								}, 500)
 							}
 						})
 					},
 					...configuration,
 				})
 				editorRef.current = editor
+			}
+
+			return () => {
+				editorRef.current?.destroy && editorRef.current.destroy()
+				clearTimeout(throttleTimeout)
 			}
 		},
 		[configuration.holder]

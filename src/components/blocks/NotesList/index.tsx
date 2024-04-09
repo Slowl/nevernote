@@ -1,13 +1,11 @@
 import { memo, useCallback, useEffect, useState } from 'react'
 import { styled } from '@linaria/react'
-import { Outlet, useLoaderData, useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
+import { Outlet, useLoaderData, useRevalidator, useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
 import { TbNoteOff, TbPlus } from 'react-icons/tb'
 import { routes } from '@/routes/index'
 import { supabase } from '@/services/supabase'
 import { Tables } from '@/types/database'
-import { NoteCategory } from '@/types/index'
 import { useNoteStore } from '@/store/index'
-import { getNotesByCategory } from '@/utils/api'
 import NoteCard from '@/components/ui/NoteCard'
 
 //#region NOTESLIST CONTAINER
@@ -176,8 +174,8 @@ export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string 
 	const { pathname } = location
 	const { setListTitle }: any = useOutletContext()
 	const prefetchedNotes = useLoaderData() as Tables<'notes'>[]
+	const revalidator = useRevalidator()
 	const [_, setSearchParams] = useSearchParams()
-	const [notes, setNotes] = useState(prefetchedNotes)
 	const selectedNote = useNoteStore((state) => state.viewedNote)
 	const isMobileListNoteVisible = useNoteStore((state) => state.isMobileListNoteVisible)
 	const setIsMobileListNoteVisible = useNoteStore((state) => state.setIsMobileListNoteVisible)
@@ -187,17 +185,13 @@ export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string 
 	useEffect(
 		() => {
 			setListTitle(currentPageTitle)
-			setNotes(prefetchedNotes)
-			const currentRouteIndex = Object.values(routes).findIndex(({ path }) => path === pathname)
 	
 			supabase.channel('custom-all-channel')
 				.on(
 					'postgres_changes',
 					{ event: '*', schema: 'public', table: 'notes' },
 					() => {
-						getNotesByCategory(Object.keys(NoteCategory)[currentRouteIndex])
-							.then((fetchedNotes) => fetchedNotes && setNotes(fetchedNotes))
-							.catch((error) => new Error(error))
+						revalidator.revalidate()
 					}
 				)
 				.subscribe()
@@ -219,7 +213,7 @@ export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string 
 	//#endregion
 
 	//#region RENDER
-	if (!(notes) || (notes.length === 0)) {
+	if (!(prefetchedNotes) || (prefetchedNotes.length === 0)) {
 		return (
 			<NoNoteView>
 				<TbNoteOff />
@@ -230,7 +224,7 @@ export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string 
 
 	return (
 		<NoteCardListContainer isVisible={isMobileListNoteVisible}>
-			{notes.map((note: Tables<'notes'> & { profiles?: Tables<'profiles'> }) => (
+			{prefetchedNotes.map((note: Tables<'notes'> & { profiles?: Tables<'profiles'> }) => (
 				<NoteCard
 					onClick={() => handleSelectNote(note)}
 					note={note}

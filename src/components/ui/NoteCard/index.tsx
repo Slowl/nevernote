@@ -1,11 +1,12 @@
 import { memo } from 'react'
 import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
 import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX, TbDotsVertical } from 'react-icons/tb'
 import Output from 'editorjs-react-renderer'
+import { supabase } from '@/services/supabase'
 import { useNoteStore, useUserStore } from '@/store/index'
 import { Tables } from '@/types/database'
-import { deleteNote, updateNote } from '@/utils/api'
 import PopoverMenu from '@/components/ui/PopoverMenu'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
@@ -154,30 +155,49 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
 	const viewedNote = useNoteStore((state) => state.viewedNote)
-	const currentUser = useUserStore((state) => state.currentUser)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
+	const currentUserId = useUserStore((state) => state.currentUserId)
+	//#endregion
+
+	//#region CORE
+	const { mutateAsync: updateNote } = useUpdateMutation(
+		supabase.from('notes'),
+		['id'],
+		`id, is_archived, updated_by`,
+		{
+			onSuccess: () => {
+				console.log('Successfully archived! Toast coming soon...')
+			},
+		}
+	)
+	const { mutateAsync: deleteNote } = useDeleteMutation(
+		supabase.from('notes'),
+		['id'],
+		`id`,
+		{
+			onSuccess: () => {
+				navigate(pathname)
+				setIsNoteFormLoading(true)
+			},
+		}
+	)
 	//#endregion
 
 	//#region EVENTS
-	const handleDeleteNote = (id: string) => {
-		deleteNote({ id }).finally(() => navigate(pathname))
-		setIsNoteFormLoading(true)
-	}
-
 	const menuList = [
 		{
 			title: note.is_archived ? 'Remove from archive' : 'Archive',
 			icon: TbArchive,
-			event: () => currentUser && updateNote({
+			event: () => currentUserId && updateNote({
 				id: note.id,
 				is_archived: !(note.is_archived),
-				updated_by: currentUser.id,
+				updated_by: currentUserId,
 			})
 		},
 		{
 			title: 'Delete',
 			icon: TbTrash,
-			event: () => handleDeleteNote(note.id)
+			event: () => deleteNote({ id: note.id })
 		},
 		{
 			title: 'Settings',
@@ -195,7 +215,7 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 					<div className='title'> {(note.title.length > 30) ? `${note.title.slice(0, 30)}…` : note.title} </div>
 					<div className='content-preview'> <Output data={note.content} /> </div>
 				</div>
-				{(note.created_by === currentUser?.id) && (
+				{(note.created_by === currentUserId) && (
 					<div className='action-container'>
 						<div className='action-button'>
 							<PopoverMenu list={menuList} options={{ placement: 'right-start' }}>

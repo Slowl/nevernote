@@ -2,14 +2,16 @@ import { useEffect } from 'react'
 import { Navigate, useLoaderData, useLocation, useNavigate } from 'react-router-dom'
 import { styled } from '@linaria/react'
 import { Session } from '@supabase/supabase-js'
+import { useQuery } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
 import useSupabaseSession from '@/utils/hooks/useSupabaseSession'
+import { getUser } from '@/utils/queries'
 import { useUserStore } from '@/store/index'
+import { routes } from '@/routes/index'
 import Navbar from '@/components/blocks/Navbar'
 import { NotesListLayout } from '@/components/blocks/NotesList'
 import FormNote from '@/components/blocks/Form/Note'
 import { themeDark } from '../../styles'
-import { routes } from '@/routes/index'
 
 //#region STYLES
 const AppContainer = styled.div`
@@ -25,15 +27,20 @@ const App = () => {
 	const { pathname } = useLocation()
 	const session = useLoaderData() as Session | null
 	const currentSession = useSupabaseSession(supabase, session)
-	const getCurrentUser = useUserStore((state) => state.getCurrentUser)
+	const setCurrentUserId = useUserStore((state) => state.setCurrentUserId)
 	const resetCurrentUser = useUserStore((state) => state.resetCurrentUser)
 	//#endregion
 
 	//#region CORE
+	useQuery(
+		getUser({ userId: currentSession?.user.id ?? '' }),
+		{ enabled: !!(currentSession?.user.id) }
+	)
+
 	useEffect(
 		() => {
 			if (currentSession?.user.id) {
-				getCurrentUser(currentSession.user.id)
+				setCurrentUserId(currentSession.user.id)
 			}
 			if (pathname === '/') {
 				navigate(routes.MY_NOTES.path)

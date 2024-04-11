@@ -1,14 +1,16 @@
 import { memo, useEffect } from 'react'
-import { styled } from '@linaria/react'
 import { useLocation, useSearchParams } from 'react-router-dom'
-import { TbSettings, TbDeviceFloppy } from 'react-icons/tb'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { Tables } from '@/types/database'
-import { createNote, updateNote } from '@/utils/api'
+import { TbDeviceFloppy } from 'react-icons/tb'
+import { styled } from '@linaria/react'
+import { useInsertMutation, useQuery, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
+import { supabase } from '@/services/supabase'
+import { getNote, getUser } from '@/utils/queries'
 import { useNoteStore, useUserStore } from '@/store/index'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
 import Editor from '@/components/ui/Editor'
+import Loader from '@/components/ui/Loader'
 
 //#region STYLES
 const FormNoteContainer = styled.div`
@@ -29,7 +31,7 @@ const FormInputContainer = styled.div`
 	gap: .5rem 0;
 	overflow-y: auto;
 	scrollbar-color: var(--color-black-3) rgba(0,0,0,0);
-  scrollbar-width: thin;
+	scrollbar-width: thin;
 
 	@media screen and (max-width: 650px) {
 		overflow-x: hidden;
@@ -167,71 +169,119 @@ const FormNote = memo(() => {
 	//#region SETUP
 	const { pathname } = useLocation()
 	const [searchParams, setSearchParams] = useSearchParams()
-	// NOTE
 	const viewedNoteId = searchParams.get('viewed')
 	const viewedNote = useNoteStore((state) => state.viewedNote)
-	const updatedBy = useNoteStore((state) => state.updatedBy)
 	const isNoteFormLoading = useNoteStore((state) => state.isNoteFormLoading)
-	const getViewedNote = useNoteStore((state) => state.getViewedNote)
-	const getUpdatedBy = useNoteStore((state) => state.getUpdatedBy)
+	const setViewedNote = useNoteStore((state) => state.setViewedNote)
 	const setTitle = useNoteStore((state) => state.setTitle)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
-	// USER
-	const currentUser = useUserStore((state) => state.currentUser)
+	const currentUserId = useUserStore((state) => state.currentUserId)
 	//#endregion
 	
 	//#region CORE
+	//#region QUERIES
+	const { data: fetchedNote, status, isFetched, isLoading: isNoteLoading } = useQuery(
+		getNote({ noteId: viewedNoteId ?? '' }),
+		{ enabled: !!(viewedNoteId) && viewedNoteId !== 'new' }
+	)
+	const { data: updatedBy } = useQuery(
+		getUser({ userId: fetchedNote?.updated_by ?? '' }),
+		{ enabled: !!(fetchedNote?.updated_by) }
+	)
+	const { data: currentUser } = useQuery(
+		getUser({ userId: currentUserId ?? '' }),
+		{ enabled: !!(currentUserId) }
+	)
+	//#endregion
+
+	//#region MUTATIONS
+	const { mutateAsync: createNote } = useInsertMutation(
+		supabase.from('notes'),
+		['id'],
+		`id, title, content, updated_at, created_by, is_archived`,
+		{ 
+			onSuccess: (newNotes) => {
+				const newNote = newNotes?.at(0)
+				if (newNote && newNote.id) {
+					setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: newNote.id }))
+				}
+			},
+			onError: (error) => {
+				console.error('Error while creating a note: ', error)
+				throw new Error(`Error while creating a note: ${error}`)
+			}
+		}
+	)
+	const { mutateAsync: updateNote } = useUpdateMutation(
+		supabase.from('notes'),
+		['id'],
+		`id, title, content, updated_at, updated_by`,
+		{
+			onSuccess: () => {
+				console.log('Successfully updated! Toast coming soon...')
+			},
+			onError: (error) => {
+				console.error('Error while updating a note: ', error)
+				throw new Error(`Error while updating a note: ${error}`)
+			}
+		}
+	)
+	//#endregion
+
 	useEffect(
 		() => {
 			setIsNoteFormLoading(true)
-			if (viewedNoteId && viewedNoteId !== 'new') {
-				getViewedNote(viewedNoteId)
-					.then((currentNote) => {
-						if (currentNote?.updated_by) {
-							getUpdatedBy(currentNote.updated_by)
-						}
-					})
-					.finally(() => setIsNoteFormLoading(false))
+			if ((status === 'success' || isFetched) && fetchedNote) {
+				setViewedNote(fetchedNote)
+				setIsNoteFormLoading(false)
 			} else {
 				resetViewedNote()
 				setIsNoteFormLoading(false)
 			}
 
-			() => { setIsNoteFormLoading(false) }
+			return () => setIsNoteFormLoading(false)
 		},
-		[viewedNoteId, pathname],
+		[pathname, isFetched, status, viewedNoteId],
 	)
 
 	useHotkeys(
 		['meta+s', 'ctrl+s'],
-		() => handleCreateOrUpdate(viewedNote),
+		async () => await handleCreateOrUpdate(viewedNote),
 		{ preventDefault: true, enableOnFormTags: true, enableOnContentEditable: true },
 		[viewedNote?.id, viewedNote?.title, viewedNote?.content]
 	)
 	//#endregion
 	
 	//#region EVENTS
-	const handleSelectNote = (note: Tables<'notes'>) => {
-		setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
-	}
-
 	const handleCreateOrUpdate = async (note: typeof viewedNote) => {
 		if (currentUser) {
 			if (note?.id) {
-				await updateNote({
-					id: note.id,
-					title: note.title ?? '',
-					content: note.content,
-					updated_by: currentUser.id,
-				})
+				try {
+					await updateNote({
+						id: note.id,
+						title: note.title ?? '',
+						content: note.content,
+						updated_by: currentUser.id,
+						updated_at: new Date(),
+					})
+				} catch (error) {
+					console.error('Error: ', error)
+					throw new Error(`Error: ${error}`)
+				}
 			} else {
-				await createNote({
-					title: note?.title ?? '',
-					content: note?.content,
-					created_by: currentUser.id,
-				})
-				.then(([note]) => handleSelectNote(note))
+				try {
+					await createNote([{
+						title: note?.title ?? '',
+						content: note?.content,
+						created_by: currentUser.id,
+						updated_at: new Date(),
+						is_archived: false,
+					}])
+				} catch (error) {
+					console.error('Error: ', error)
+					throw new Error(`Error: ${error}`)
+				}
 			}
 		}
 	}
@@ -241,36 +291,45 @@ const FormNote = memo(() => {
 	return (
 		<FormNoteContainer>
 			<FormInputContainer>
-				<FormHead>
-					<input
-						type='text'
-						placeholder={`Write your note's title ...`}
-						onChange={(event => setTitle(event.target.value))}
-						value={viewedNote?.title ?? ''}
-					/>
-					<div className='action-container'>
-						<div className='action-button'>
-							<TbSettings />
-						</div>
-					</div>
-				</FormHead>
-				<FormBody>
-					{!(isNoteFormLoading) && (
-						<Editor
-							configuration={{
-								holder: 'note-editor',
-								data: viewedNote?.content,
-								autofocus: false,
-								placeholder: 'Write your note...',
-							}}
-							onChange={(data) => handleCreateOrUpdate({ ...viewedNote, content: data })}
-						/>
-					)}
-				</FormBody>
+				{(isNoteLoading)  
+					? <Loader />
+					: (
+						<>
+							<FormHead>
+								<input
+									type='text'
+									placeholder={`Write your note's title ...`}
+									onChange={(event => setTitle(event.target.value))}
+									value={viewedNote?.title}
+								/>
+								{/* <div className='action-container'>
+									<div className='action-button'>
+										<TbSettings />
+									</div>
+								</div> */}
+							</FormHead>
+							<FormBody>
+								{
+									((!(isNoteFormLoading) && (fetchedNote?.id)) || !(fetchedNote?.id)) && (
+										<Editor
+											configuration={{
+												holder: 'note-editor',
+												data: fetchedNote?.content,
+												autofocus: false,
+												placeholder: 'Write your note...',
+											}}
+											onChange={(data) => handleCreateOrUpdate({ ...fetchedNote, content: data })}
+										/>
+									)
+								}
+							</FormBody>
+						</>
+					)
+				}
 			</FormInputContainer>
 			<FormToolbar>
 				<div className='note-informations'>
-					{(viewedNote?.updated_by) && (updatedBy?.first_name) && (
+					{(fetchedNote?.updated_by) && (updatedBy?.first_name) && (
 						<>
 							<div>Last edited by</div>
 							<User
@@ -282,10 +341,10 @@ const FormNote = memo(() => {
 						</>
 					)}
 					<div>
-						{(viewedNote?.updated_at) && (
+						{(fetchedNote?.updated_at) && (
 							<Tooltip placement='top'>
 								<TooltipTrigger>
-									{new Date(viewedNote?.updated_at).toLocaleDateString('en-US', {
+									{new Date(fetchedNote?.updated_at).toLocaleDateString('en-US', {
 											year: 'numeric',
 											month: 'long',
 											day: 'numeric',
@@ -293,7 +352,7 @@ const FormNote = memo(() => {
 									}
 								</TooltipTrigger>
 								<TooltipContent>
-									{new Date(viewedNote?.updated_at).toLocaleDateString('en-US', {
+									{new Date(fetchedNote?.updated_at).toLocaleDateString('en-US', {
 										year: 'numeric',
 										month: 'long',
 										weekday: 'long',

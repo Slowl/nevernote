@@ -2,7 +2,6 @@ import { createBrowserRouter, redirect } from 'react-router-dom'
 import { TbList, TbUsers, TbEyeShare, TbArchive } from 'react-icons/tb'
 import { supabase } from '@/services/supabase'
 import { NoteCategory } from '@/types/index'
-import { getNotesByCategory } from '@/utils/api'
 import App from '@/pages/App'
 import AuthView from '@/pages/Auth'
 import { NotesList } from '@/components/blocks/NotesList'
@@ -43,23 +42,19 @@ export const router = createBrowserRouter([
 		children: [
 			{
 				path: routes[NoteCategory.MY_NOTES].path,
-				element: <NotesList currentPageTitle={routes[NoteCategory.MY_NOTES].title} />,
-				loader: async () => getNotesByCategory(NoteCategory.MY_NOTES)
+				element: <NotesList category={NoteCategory.MY_NOTES} currentPageTitle={routes[NoteCategory.MY_NOTES].title} />,
 			},
 			{
 				path: routes[NoteCategory.SHARED].path,
-				element: <NotesList currentPageTitle={routes[NoteCategory.SHARED].title} />,
-				loader: async () => getNotesByCategory(NoteCategory.SHARED)
+				element: <NotesList category={NoteCategory.SHARED} currentPageTitle={routes[NoteCategory.SHARED].title} />,
 			},
 			{
 				path: routes[NoteCategory.PUBLIC].path,
-				element: <NotesList currentPageTitle={routes[NoteCategory.PUBLIC].title} />,
-				loader: async () => getNotesByCategory(NoteCategory.PUBLIC)
+				element: <NotesList category={NoteCategory.PUBLIC} currentPageTitle={routes[NoteCategory.PUBLIC].title} />,
 			},
 			{
 				path: routes[NoteCategory.ARCHIVED].path,
-				element: <NotesList currentPageTitle={routes[NoteCategory.ARCHIVED].title} />,
-				loader: async () => getNotesByCategory(NoteCategory.ARCHIVED)
+				element: <NotesList category={NoteCategory.ARCHIVED} currentPageTitle={routes[NoteCategory.ARCHIVED].title} />,
 			},
 		],
 	},

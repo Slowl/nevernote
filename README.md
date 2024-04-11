@@ -1,3 +1,3 @@
 WIP - Nevernote v2
 
-React - Zustand - Supabase - Linaria
+React - Zustand - Supabase - React Query - Linaria

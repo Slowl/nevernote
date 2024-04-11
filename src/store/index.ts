@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { OutputData } from '@editorjs/editorjs'
-import { supabase } from '@/services/supabase'
 import { Tables } from '@/types/database'
 
 interface GeneralState {
@@ -16,51 +15,21 @@ export const useGeneralStore = create<GeneralState>()(devtools((set) => ({
 
 interface NoteState {
 	isNoteFormLoading: boolean;
-	updatedBy?: Tables<'profiles'>;
 	viewedNote?: Partial<Tables<'notes'>> & { profiles?: Partial<Tables<'profiles'>>};
 	setContent: (content?: OutputData) => void;
 	setIsNoteFormLoading: (isLoading: boolean) => void;
 	setTitle: (title: Tables<'notes'>['title']) => void;
-	getUpdatedBy: (userId: string) => Promise<Tables<'profiles'> | null>;
-	getViewedNote: (noteId: string) => Promise<Tables<'notes'> | null>;
+	setViewedNote: (note: Tables<'notes'>) => void;
 	resetViewedNote: () => void;
 }
 
 export const useNoteStore = create<NoteState>()(devtools((set) => ({
 	isNoteFormLoading: false,
-	updatedBy: undefined,
 	viewedNote: undefined,
 	setContent: (content) => set((state) => ({ viewedNote: { ...state.viewedNote, content } })),
 	setIsNoteFormLoading: (isLoading) => set(() => ({ isNoteFormLoading: isLoading })),
 	setTitle: (title) => set((state) => ({ viewedNote: { ...state.viewedNote, title } })),
-		getUpdatedBy: async (userId: string) => {
-		const { data } = await supabase.from('profiles')
-		.select()
-		.eq('id', userId)
-		.limit(1)
-
-		if (data) {
-			data && set({ updatedBy: data[0] })
-			
-			return data[0]
-		}
-
-		return Promise.reject()
-	},
-	getViewedNote: async (noteId: string) => {
-		const { data } = await supabase.from('notes')
-		.select()
-		.eq('id', noteId)
-		.limit(1)
-
-		if (data) {
-			data && set({ viewedNote: data[0] })
-			
-			return data[0]
-		}
-
-		return Promise.reject()
-	},
+	setViewedNote: (note) => set(()=> ({ viewedNote: note })),
 	resetViewedNote: () => set(() => ({
 		viewedNote: {
 			title: '',
@@ -74,26 +43,13 @@ export const useNoteStore = create<NoteState>()(devtools((set) => ({
 }), { name: 'NOTE STORE' }))
 
 interface UserState {
-	currentUser?: Tables<'profiles'>;
-	getCurrentUser: (userId: string) => Promise<Tables<'profiles'> | null>;
+	currentUserId?: string;
+	setCurrentUserId: (currentUserId: string) => void;
 	resetCurrentUser: () => void;
 }
 
 export const useUserStore = create<UserState>()(devtools((set) => ({
-	currentUser: undefined,
-	getCurrentUser: async (userId: string) => {
-		const { data } = await supabase
-		.from('profiles')
-		.select()
-		.eq('id', userId)
-
-		if (data) {
-			data && set({ currentUser: data[0] })
-			
-			return data[0]
-		}
-
-		return Promise.reject()
-	},
-	resetCurrentUser: () => set(() => ({ currentUser: undefined }))
+	currentUserId: undefined,
+	setCurrentUserId: (currentUserId) => set(() => ({ currentUserId })),
+	resetCurrentUser: () => set(() => ({ currentUserId: undefined }))
 }), { name: 'USER STORE' }))

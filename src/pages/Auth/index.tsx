@@ -1,7 +1,10 @@
 import { themeDark } from '../../styles'
+import { Navigate, useLoaderData } from 'react-router-dom'
 import { Auth } from '@supabase/auth-ui-react'
+import { Session } from '@supabase/supabase-js'
 import { css } from '@linaria/core'
 import { styled } from '@linaria/react'
+import useSupabaseSession from '@/utils/hooks/useSupabaseSession'
 import { supabase } from '@/services/supabase'
 
 //#region STYLE
@@ -119,7 +122,13 @@ const AuthMessageStyle = css`
 
 const AuthView = () => {
 
+	const session = useLoaderData() as Session | null
+	const currentSession = useSupabaseSession(supabase, session)
 	const currentLocation = window.location
+
+	if (currentSession) {
+		return <Navigate to='/'/>
+	}
 	
 	return (
 		<AuthViewContainer className={themeDark}>

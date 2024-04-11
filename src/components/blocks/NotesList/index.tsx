@@ -1,12 +1,16 @@
 import { Dispatch, SetStateAction, memo, useCallback, useEffect, useState } from 'react'
-import { styled } from '@linaria/react'
-import { Outlet, useLoaderData, useRevalidator, useNavigate, useOutletContext, useSearchParams, useLocation } from 'react-router-dom'
+import { Outlet, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
 import { TbNoteOff, TbPlus } from 'react-icons/tb'
-import { routes } from '@/routes/index'
+import { styled } from '@linaria/react'
+import { useQuery, useSubscription } from '@supabase-cache-helpers/postgrest-react-query'
+import { getNotesByCategory } from '@/utils/queries'
 import { supabase } from '@/services/supabase'
 import { Tables } from '@/types/database'
-import { useGeneralStore, useNoteStore } from '@/store/index'
+import { NoteCategory } from '@/types/index'
+import { routes } from '@/routes/index'
+import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import NoteCard from '@/components/ui/NoteCard'
+import Loader from '@/components/ui/Loader'
 
 //#region NOTESLIST CONTAINER
 //#region STYLES
@@ -115,6 +119,7 @@ export const NotesListLayout = () => {
 				return setIsMobileListNoteVisible(false)
 			}
 			setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: 'new' }))
+			setIsNoteFormLoading(true)
 			resetViewedNote()
 		}
 		setIsMobileListNoteVisible(false)
@@ -149,7 +154,7 @@ const NoteCardListContainer = styled.div<{ isVisible: boolean }>`
 	flex-direction: column;
 	gap: 1rem 0;
 `
-const NoNoteView = styled.div`
+const FallbackView = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -162,36 +167,40 @@ const NoNoteView = styled.div`
 	}
 `
 //#endregion
-export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string }) => {
+
+export const NotesList = memo(({ category, currentPageTitle }: {
+	category: NoteCategory;
+	currentPageTitle: string;
+}) => {
 
 	//#region SETUP
-	const location = useLocation()
-	const { pathname } = location
 	const { setListTitle }: { setListTitle: Dispatch<SetStateAction<string>> } = useOutletContext()
-	const prefetchedNotes = useLoaderData() as Tables<'notes'>[]
-	const revalidator = useRevalidator()
 	const [_, setSearchParams] = useSearchParams()
 	const selectedNote = useNoteStore((state) => state.viewedNote)
+	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
 	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
+	const currentUserId = useUserStore((state) => state.currentUserId)
 	//#endregion
 
 	//#region CORE
-	useEffect(
-		() => {
-			setListTitle(currentPageTitle)
-	
-			supabase.channel('custom-all-channel')
-				.on(
-					'postgres_changes',
-					{ event: '*', schema: 'public', table: 'notes' },
-					() => {
-						revalidator.revalidate()
-					}
-				)
-				.subscribe()
+	const { data: notes, isLoading: areNotesLoading } = useQuery(
+		getNotesByCategory({ category, currentUserId: currentUserId ?? 'user-id' }),
+		{ enabled: !!(currentUserId) }
+	)
+
+	useSubscription(supabase, 'custom-all-channel',
+		{
+			event: '*',
+			schema: 'public',
+			table: 'notes',
 		},
-		[pathname],
+		['id'],
+	)
+	
+	useEffect(
+		() => setListTitle(currentPageTitle),
+		[currentPageTitle],
 	)
 	//#endregion
 
@@ -201,6 +210,7 @@ export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string 
 			setIsMobileListNoteVisible(false)
 			if ((note.id !== selectedNote?.id)) {
 				setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
+				setIsNoteFormLoading(true)
 			}
 		},
 		[selectedNote?.id],
@@ -208,18 +218,22 @@ export const NotesList = memo(({ currentPageTitle }: { currentPageTitle: string 
 	//#endregion
 
 	//#region RENDER
-	if (!(prefetchedNotes) || (prefetchedNotes.length === 0)) {
+	if (areNotesLoading) {
+		return <FallbackView> <Loader /> </FallbackView>
+	}
+
+	if (!(notes) || (notes.length === 0)) {
 		return (
-			<NoNoteView>
+			<FallbackView>
 				<TbNoteOff />
 				<div> No notes yet ... </div>
-			</NoNoteView>	
+			</FallbackView>	
 		)
 	}
 
 	return (
 		<NoteCardListContainer isVisible={isMobileListNoteVisible}>
-			{prefetchedNotes.map((note: Tables<'notes'> & { profiles?: Tables<'profiles'> }) => (
+			{notes.map((note: Tables<'notes'> & { profiles?: Tables<'profiles'> }) => (
 				<NoteCard
 					onClick={() => handleSelectNote(note)}
 					note={note}

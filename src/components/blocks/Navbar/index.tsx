@@ -2,8 +2,10 @@ import { MouseEvent } from 'react'
 import { styled } from '@linaria/react'
 import { Link, useLocation } from 'react-router-dom'
 import { TbLogout2, TbSettings } from 'react-icons/tb'
-import { routes } from '@/routes/index'
+import { useQuery } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
+import { getUser } from '@/utils/queries'
+import { routes } from '@/routes/index'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import PopoverMenu from '@/components/ui/PopoverMenu'
@@ -102,10 +104,17 @@ const Navbar = () => {
 
 	//#region SETUP
 	const { pathname } = useLocation();
-	const currentUser = useUserStore((state) => state.currentUser)
+	const currentUserId = useUserStore((state) => state.currentUserId)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
 	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
+	//#endregion
+
+	//#region CORE
+	const { data: currentUser } = useQuery(
+		getUser({ userId: currentUserId ?? '' }),
+		{ enabled: !!(currentUserId) }
+	)
 	//#endregion
 
 	//#region EVENTS

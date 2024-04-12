@@ -8,6 +8,7 @@ import useSupabaseSession from '@/utils/hooks/useSupabaseSession'
 import { getUser } from '@/utils/queries'
 import { useUserStore } from '@/store/index'
 import { routes } from '@/routes/index'
+import Toast from '@/components/ui/Toast'
 import Navbar from '@/components/blocks/Navbar'
 import { NotesListLayout } from '@/components/blocks/NotesList'
 import FormNote from '@/components/blocks/Form/Note'
@@ -59,6 +60,7 @@ const App = () => {
 
 	return (
 		<AppContainer className={themeDark}>
+			<Toast />
 			<Navbar />
 			<NotesListLayout />
 			<FormNote />

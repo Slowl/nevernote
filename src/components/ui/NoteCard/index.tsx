@@ -5,8 +5,9 @@ import { useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/po
 import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX, TbDotsVertical } from 'react-icons/tb'
 import Output from 'editorjs-react-renderer'
 import { supabase } from '@/services/supabase'
-import { useNoteStore, useUserStore } from '@/store/index'
+import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import { Tables } from '@/types/database'
+import { ToastTemplates } from '@/components/ui/Toast'
 import PopoverMenu from '@/components/ui/PopoverMenu'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
@@ -157,6 +158,7 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 	const viewedNote = useNoteStore((state) => state.viewedNote)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const currentUserId = useUserStore((state) => state.currentUserId)
+	const setToast = useGeneralStore((state) => state.setToast)
 	//#endregion
 
 	//#region CORE
@@ -165,9 +167,18 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 		['id'],
 		`id, is_archived, updated_by`,
 		{
-			onSuccess: () => {
-				console.log('Successfully archived! Toast coming soon...')
-			},
+			onSuccess: (updatedNote) => setToast({
+				...ToastTemplates.successNoteArchived,
+				content: updatedNote?.is_archived ? 'Note successfully archived' : 'Note removed from archives'
+			}),
+			onError: (error) => {
+				setToast({
+					...ToastTemplates.errorNote,
+					content: viewedNote?.is_archived ? 'Error while removing from archives...' : 'Error while archiving...'
+				})
+				console.error('Error while archiving/removing from archives: ', error)
+				throw new Error(`Error while archiving/removing from archives: ${error}`)
+			}
 		}
 	)
 	const { mutateAsync: deleteNote } = useDeleteMutation(
@@ -178,7 +189,13 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 			onSuccess: () => {
 				navigate(pathname)
 				setIsNoteFormLoading(true)
+				setToast(ToastTemplates.successNoteDelete)
 			},
+			onError: (error) => {
+				setToast({ ...ToastTemplates.errorNote, content: 'Could not delete the note...' })
+				console.error('Error while deleting a note: ', error)
+				throw new Error(`Error while deleting a note: ${error}`)
+			}
 		}
 	)
 	//#endregion

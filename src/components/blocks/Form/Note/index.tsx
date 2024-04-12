@@ -6,8 +6,9 @@ import { styled } from '@linaria/react'
 import { useInsertMutation, useQuery, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
 import { getNote, getUser } from '@/utils/queries'
-import { useNoteStore, useUserStore } from '@/store/index'
+import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
+import { ToastTemplates } from '@/components/ui/Toast'
 import User from '@/components/ui/User'
 import Editor from '@/components/ui/Editor'
 import Loader from '@/components/ui/Loader'
@@ -177,6 +178,7 @@ const FormNote = memo(() => {
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
 	const currentUserId = useUserStore((state) => state.currentUserId)
+	const setToast = useGeneralStore((state) => state.setToast)
 	//#endregion
 	
 	//#region CORE
@@ -202,12 +204,14 @@ const FormNote = memo(() => {
 		`id, title, content, updated_at, created_by, is_archived`,
 		{ 
 			onSuccess: (newNotes) => {
+				setToast(ToastTemplates.successNoteCreate)
 				const newNote = newNotes?.at(0)
 				if (newNote && newNote.id) {
 					setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: newNote.id }))
 				}
 			},
 			onError: (error) => {
+				setToast({ ...ToastTemplates.errorNote, content: 'Could not create the note...' })
 				console.error('Error while creating a note: ', error)
 				throw new Error(`Error while creating a note: ${error}`)
 			}
@@ -218,10 +222,9 @@ const FormNote = memo(() => {
 		['id'],
 		`id, title, content, updated_at, updated_by`,
 		{
-			onSuccess: () => {
-				console.log('Successfully updated! Toast coming soon...')
-			},
+			onSuccess: () => setToast(ToastTemplates.successNoteUpdate),
 			onError: (error) => {
+				setToast({ ...ToastTemplates.errorNote, content: 'Could not update the note...' })
 				console.error('Error while updating a note: ', error)
 				throw new Error(`Error while updating a note: ${error}`)
 			}

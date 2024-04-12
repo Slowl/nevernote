@@ -1,16 +1,21 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { OutputData } from '@editorjs/editorjs'
+import { Toast } from '@/types/index';
 import { Tables } from '@/types/database'
 
 interface GeneralState {
 	isMobileListNoteVisible: boolean;
 	setIsMobileListNoteVisible: (isVisible: boolean) => void;
+	toast?: Toast;
+	setToast: (toastItem: Toast) => void;
 }
 
 export const useGeneralStore = create<GeneralState>()(devtools((set) => ({
 	isMobileListNoteVisible: true,
+	toast: undefined,
 	setIsMobileListNoteVisible: (isVisible) => set(() => ({ isMobileListNoteVisible: isVisible })),
+	setToast: (toastItem) => set(() => ({ toast: toastItem }))
 }), { name: 'GENERAL STORE' }))
 
 interface NoteState {

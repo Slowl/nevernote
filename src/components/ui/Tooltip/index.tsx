@@ -53,13 +53,13 @@ export const useTooltip = ({
 		onOpenChange: setOpen,
 		whileElementsMounted: autoUpdate,
 		middleware: [
-			offset(3),
+			offset(7),
 			flip({
 				crossAxis: placement.includes('-'),
 				fallbackAxisSideDirection: 'start',
-				padding: 3
+				padding: 7
 			}),
-			shift({ padding: 3 })
+			shift({ padding: 7 })
 		]
 	})
 

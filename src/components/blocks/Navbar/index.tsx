@@ -47,6 +47,11 @@ const NavContainer = styled.nav`
 		}
 	}
 
+	* {
+		-webkit-tap-highlight-color: transparent;
+		-moz-tap-highlight-color: transparent;
+	}
+
 	@media screen and (max-width: 650px) {
 		width: 100%;
 		flex-direction: row;

@@ -49,6 +49,7 @@ const ListTitle = styled.div`
 const TopContainer = styled.div`
 	padding: 1rem .5rem 1.7rem;
 	@media screen and (max-width: 650px) {
+		display: none;
 		padding: 1rem .5rem 1rem;
 	}
 `
@@ -81,6 +82,7 @@ const BottomContainer = styled.div`
 	scrollbar-color: var(--color-black-3) rgba(0,0,0,0);
   scrollbar-width: thin;
 	@media screen and (max-width: 650px) {
+		padding: .5rem 1rem 1rem;
 		border-top: 1px solid var(--color-black-3);
 	}
 `

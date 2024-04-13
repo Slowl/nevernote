@@ -7,15 +7,12 @@ import { useGeneralStore } from '@/store/index'
 //#region STYLES
 const ToastContainer = styled.div<{ isVisible: boolean, type: ToastType }>`
 	position: fixed;
-	top: ${({ isVisible }) => isVisible ? '15px' : '-100px'};
 	right: 20px;
 	display: flex;
 	align-items: start;
 	gap: .7rem;
 	min-width: 17rem; width: 17rem;
 	padding: .5rem .5rem .6rem;
-	background-color: var(--color-green-0);
-	color: var(--color-black-0);
 	background-color: ${({ type }) => {
 		switch (type) {
 			case ToastType.SUCCESS: return 'var(--color-green-0)';
@@ -33,7 +30,10 @@ const ToastContainer = styled.div<{ isVisible: boolean, type: ToastType }>`
 		}
 	}};
 	border-radius: 4px;
-	transition: ease .3s;
+	transform: ${({ isVisible }) => isVisible ? 'translateY(15px)' : 'translateY(-50px)'};
+	opacity: ${({ isVisible }) => isVisible ? 1 : 0};
+	will-change: transform, opacity;
+	transition: .3s;
 	z-index: 1000;
 
 	.icon {
@@ -95,34 +95,34 @@ export const ToastTemplates = {
 		content: 'Note successfully created!',
 		type: ToastType.SUCCESS,
 		icon: TbCircleCheck,
-		duration: 3000,
+		duration: 1500,
 	},
 	successNoteUpdate: {
 		isVisible: true,
 		content: 'Note successfully updated!',
 		type: ToastType.SUCCESS,
 		icon: TbCircleCheck,
-		duration: 3000,
+		duration: 1500,
 	},
 	successNoteDelete: {
 		isVisible: true,
 		content: 'Note successfully deleted!',
 		type: ToastType.SUCCESS,
 		icon: TbCircleCheck,
-		duration: 3000,
+		duration: 1500,
 	},
 	successNoteArchived: {
 		isVisible: true,
 		content: 'Note successfully archived!',
 		type: ToastType.SUCCESS,
 		icon: TbCircleCheck,
-		duration: 3000,
+		duration: 1500,
 	},
 	errorNote: {
 		isVisible: true,
 		content: 'An error occured...',
 		type: ToastType.ERROR,
 		icon: TbExclamationCircle,
-		duration: 3000,
+		duration: 1500,
 	}
 }

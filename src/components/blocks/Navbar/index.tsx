@@ -1,7 +1,7 @@
 import { MouseEvent } from 'react'
 import { styled } from '@linaria/react'
-import { Link, useLocation } from 'react-router-dom'
-import { TbLogout2, TbSettings } from 'react-icons/tb'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { TbLogout2, TbSettings, TbPlus } from 'react-icons/tb'
 import { useQuery } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
 import { getUser } from '@/utils/queries'
@@ -63,7 +63,8 @@ const NavContainer = styled.nav`
 		z-index: 999;
 		.top-container {
 			flex-direction: row;
-			gap: 1.5rem;
+			gap: 1rem;
+			padding-left: 4rem;
 			.logo { display: none; }
 		}
 		.bottom-container {
@@ -103,13 +104,48 @@ const NavigationItem = styled.div<{ isCurrent?: boolean }>`
 		width: 42px; height: 42px;
 	}
 `
+const CreateNoteButton = styled.div`
+	display: none;
+	@media screen and (max-width: 650px) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		position: absolute;
+		left: 10px;
+		top: 6px;
+		width: 52px; height: 52px;
+		padding: .4rem;
+		color: var(--color-white);
+		background-color: var(--color-black-5);
+		border-radius: 50%;
+		z-index: 1000;
+
+		&::after {
+			content: '';
+			display: block;
+			width: 35px; height: 1px;
+			background-color: var(--color-black-4);
+			transform: rotate(90deg);
+			position: absolute;
+			left: 43px;
+		}
+
+		svg {
+			width: 26px; height: 26px;
+		}
+	}
+`
 //#endregion
 
 const Navbar = () => {
 
 	//#region SETUP
+	const navigate = useNavigate()
 	const { pathname } = useLocation();
+	const [searchParams, setSearchParams] = useSearchParams()
 	const currentUserId = useUserStore((state) => state.currentUserId)
+	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
 	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
 	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
 	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
@@ -140,11 +176,23 @@ const Navbar = () => {
 		setIsMobileListNoteVisible(true)
 		setIsNoteFormLoading(true)
 	}
-
 	const toggleMobileNoteList = (event: MouseEvent<HTMLDivElement>) => {
 		event.preventDefault()
 		setIsMobileListNoteVisible(!(isMobileListNoteVisible))
 		setIsNoteFormLoading(false)
+	}
+	const handleCreateNewNote = () => {
+		if (searchParams.get('viewed')) {
+			if ((searchParams.get('viewed') === 'new')) {
+				return setIsMobileListNoteVisible(false)
+			}
+			setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: 'new' }))
+			setIsNoteFormLoading(true)
+			resetViewedNote()
+		}
+		setIsMobileListNoteVisible(false)
+		setIsNoteFormLoading(true)
+		navigate(`${routes.MY_NOTES.path}?viewed=new`)
 	}
 	//#endregion
 
@@ -153,6 +201,9 @@ const Navbar = () => {
 		<NavContainer>
 			<div className='top-container'>
 				<img className='logo' src={NevernoteLogo}/>
+				<CreateNoteButton onClick={() => handleCreateNewNote()}>
+					<TbPlus />
+				</CreateNoteButton>
 				{Object.values(routes).map((route) => (
 					<Link to={{ pathname: route.path }} title={route.title} key={route.path}>
 						<Tooltip placement='right'>

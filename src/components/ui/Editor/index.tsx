@@ -192,7 +192,7 @@ const Editor = memo(({ configuration, onChange }: {
 									onChange(noteContent)
 									
 									throttlePause = false
-								}, 500)
+								}, 1000)
 							}
 						})
 					},

@@ -152,7 +152,7 @@ const EditorContainer = styled.div`
 
 const Editor = memo(({ configuration, onChange }: {
 	configuration: EditorConfig;
-	onChange: (note: OutputData) => void;
+	onChange: (note: OutputData) => Promise<void>;
 }) => {
 
 	//#region SETUP
@@ -192,7 +192,7 @@ const Editor = memo(({ configuration, onChange }: {
 									onChange(noteContent)
 									
 									throttlePause = false
-								}, 1000)
+								}, 700)
 							}
 						})
 					},

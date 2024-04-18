@@ -141,6 +141,16 @@ const FormToolbar = styled.div`
 				background-color: var(--color-black-3);
 			}
 		}
+
+		.disabled {
+			cursor: default;
+			background-color: var(--color-black-5);
+			color: var(--color-grey-2);
+			&:hover {				
+				background-color: var(--color-black-5);
+				color: var(--color-grey-2);
+			}
+		}
 	}
 
 	@media screen and (max-width: 650px) {
@@ -222,7 +232,6 @@ const FormNote = memo(() => {
 		['id'],
 		`id, title, content, updated_at, updated_by`,
 		{
-			onSuccess: () => setToast(ToastTemplates.successNoteUpdate),
 			onError: (error) => {
 				setToast({ ...ToastTemplates.errorNote, content: 'Could not update the note...' })
 				console.error('Error while updating a note: ', error)
@@ -258,7 +267,7 @@ const FormNote = memo(() => {
 	
 	//#region EVENTS
 	const handleCreateOrUpdate = async (note: typeof viewedNote) => {
-		if (currentUser) {
+		if (currentUser && note?.title) {
 			if (note?.id) {
 				try {
 					await updateNote({
@@ -372,8 +381,12 @@ const FormNote = memo(() => {
 				<div className='note-actions'>
 					{(currentUser) && (
 						<div
-							className='button'
-							onClick={() => handleCreateOrUpdate(viewedNote)}
+							className={`button ${!(viewedNote?.title) && 'disabled'}`}
+							onClick={
+								() => (viewedNote?.title) && handleCreateOrUpdate(viewedNote)
+								.then(() => setToast(ToastTemplates.successNoteUpdate))
+								.catch((error) => error)
+							}
 						>
 							Save <TbDeviceFloppy />
 						</div>

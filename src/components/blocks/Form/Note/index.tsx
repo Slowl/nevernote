@@ -173,8 +173,8 @@ const FormToolbar = styled.div`
 		}
 	}
 `
-
 //#endregion
+
 const FormNote = memo(() => {
 
 	//#region SETUP
@@ -259,7 +259,9 @@ const FormNote = memo(() => {
 
 	useHotkeys(
 		['meta+s', 'ctrl+s'],
-		async () => await handleCreateOrUpdate(viewedNote),
+		async () => await handleCreateOrUpdate(viewedNote).then(
+			() => setToast((viewedNote?.id) ? ToastTemplates.successNoteUpdate : ToastTemplates.successNoteCreate)
+		),
 		{ preventDefault: true, enableOnFormTags: true, enableOnContentEditable: true },
 		[viewedNote?.id, viewedNote?.title, viewedNote?.content]
 	)
@@ -383,8 +385,8 @@ const FormNote = memo(() => {
 						<div
 							className={`button ${!(viewedNote?.title) && 'disabled'}`}
 							onClick={
-								() => (viewedNote?.title) && handleCreateOrUpdate(viewedNote)
-								.then(() => setToast(ToastTemplates.successNoteUpdate))
+								() => handleCreateOrUpdate(viewedNote)
+								.then(() => setToast((viewedNote?.id) ? ToastTemplates.successNoteUpdate : ToastTemplates.successNoteCreate))
 								.catch((error) => error)
 							}
 						>

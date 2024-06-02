@@ -19,7 +19,7 @@ export type Database = {
 					created_by: string
 					id: string
 					is_archived: boolean
-					public_url: string | null
+					public_note_id: string | null
 					shared_with: string[] | null
 					title: string
 					updated_at: string | null
@@ -32,7 +32,7 @@ export type Database = {
 					created_by: string
 					id?: string
 					is_archived?: boolean
-					public_url?: string | null
+					public_note_id?: string | null
 					shared_with?: string[] | null
 					title: string
 					updated_at?: Date
@@ -45,7 +45,7 @@ export type Database = {
 					created_by?: string
 					id?: string
 					is_archived?: boolean
-					public_url?: string | null
+					public_note_id?: string | null
 					shared_with?: string[] | null
 					title?: string
 					updated_at?: Date
@@ -53,10 +53,10 @@ export type Database = {
 				}
         Relationships: [
           {
-            foreignKeyName: 'notes_created_by_fkey'
-            columns: ['created_by']
+            foreignKeyName: 'notes_public_note_id_fkey'
+            columns: ['public_note_id']
             isOneToOne: false
-            referencedRelation: 'users'
+            referencedRelation: 'public_notes'
             referencedColumns: ['id']
           },
           {
@@ -115,6 +115,42 @@ export type Database = {
             columns: ['id']
             isOneToOne: true
             referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+			public_notes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          related_note: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          related_note?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          related_note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'public_notes_created_by_fkey1'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'public_notes_related_note_fkey'
+            columns: ['related_note']
+            isOneToOne: false
+            referencedRelation: 'notes'
             referencedColumns: ['id']
           },
         ]

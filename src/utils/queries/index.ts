@@ -16,7 +16,7 @@ export const getNote = ({ noteId }: { noteId: string }) => {
 				updated_at,
 				is_archived,
 				shared_with,
-				public_url
+				public_note_id
 			`)
 			.eq('id', noteId)
 			.single()
@@ -42,10 +42,10 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_at,
 					is_archived,
 					shared_with,
-					public_url
+					public_note_id
 			`)
 				.eq('created_by', currentUserId)
-				.is('public_url', null).is('is_archived', false)
+				.is('is_archived', false)
 				.order('updated_at', { ascending: false })
 		}
 		if (category === NoteCategory.SHARED) {
@@ -60,7 +60,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_at,
 					is_archived,
 					shared_with,
-					public_url,
+					public_note_id,
 					profiles(id, first_name, last_name, avatar)
 				`)
 				.contains('shared_with', [currentUserId])
@@ -79,10 +79,10 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_at,
 					is_archived,
 					shared_with,
-					public_url
+					public_note_id
 			`)
 				.eq('created_by', currentUserId)
-				.not('public_url', 'is', null).is('is_archived', false)
+				.not('public_note_id', 'is', null).is('is_archived', false)
 				.order('updated_at', { ascending: false })
 		}
 		if (category === NoteCategory.ARCHIVED) {
@@ -97,7 +97,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_at,
 					is_archived,
 					shared_with,
-					public_url
+					public_note_id
 			`)
 				.eq('created_by', currentUserId)
 				.is('is_archived', true)

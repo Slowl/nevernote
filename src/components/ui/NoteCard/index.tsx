@@ -1,8 +1,8 @@
 import { memo } from 'react'
 import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
-import { TbUsers, TbEyeShare, TbArchive, TbTrash, TbSettings, TbCheck, TbX, TbDotsVertical } from 'react-icons/tb'
+import { useInsertMutation, useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
+import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical } from 'react-icons/tb'
 import Output from 'editorjs-react-renderer'
 import { supabase } from '@/services/supabase'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
@@ -151,7 +151,7 @@ const StatusTootip = styled.div`
 
 interface NoteCardProps {
 	note: Pick<
-		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'public_url' | 'shared_with'
+		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'public_note_id' | 'shared_with'
 	> & { profiles?: Tables<'profiles'> };
 	onClick: () => void;
 }
@@ -204,13 +204,80 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 			}
 		}
 	)
+	const { mutateAsync: addPublicNoteId } = useUpdateMutation(
+		supabase.from('notes'),
+		['id'],
+		`id, public_note_id`,
+		{
+			onError: (error) => {
+				setToast({
+					...ToastTemplates.errorNote,
+					content: 'Error while adding public note id...'
+				})
+				console.error('Error while adding public note id: ', error)
+				throw new Error(`Error while adding public note id: ${error}`)
+			}
+		}
+	)
+	const { mutateAsync: createPublicNote } = useInsertMutation(
+		supabase.from('public_notes'),
+		['id'],
+		`id, created_by, related_note`,
+		{
+			onSuccess: (createdPublicNote) => {
+				addPublicNoteId({
+					id: note.id,
+					public_note_id: createdPublicNote?.[0].id,
+				})
+				setToast({
+					...ToastTemplates.successNoteCreate,
+					content: 'The note is publicly available at: >> todo'
+				})
+			},
+			onError: (error) => {
+				setToast({
+					...ToastTemplates.errorNote,
+					content: 'Error while creating a public note...'
+				})
+				console.error('Error while creating a public note: ', error)
+				throw new Error(`Error while creating a public note: ${error}`)
+			}
+		}
+	)
+	const { mutateAsync: deletePublicNote } = useDeleteMutation(
+		supabase.from('public_notes'),
+		['id'],
+		`id`,
+		{
+			onSuccess: () => {
+				navigate(pathname)
+				setIsNoteFormLoading(true)
+				setToast({
+					...ToastTemplates.successNoteDelete,
+					content: 'Note successfully removed from public'
+				})
+			},
+			onError: (error) => {
+				setToast({ ...ToastTemplates.errorNote, content: 'Could not remove the note from public...' })
+				console.error('Error while removing a note from public: ', error)
+				throw new Error(`Error while removing a note from public: ${error}`)
+			}
+		}
+	)
 	//#endregion
 
 	//#region EVENTS
 	const menuList = [
 		{
+			title: note.public_note_id ? 'Remove from public' : 'Publish publicly',
+			icon: note.public_note_id ? TbEyeOff : TbEyeShare,
+			event: () => note.public_note_id
+				? deletePublicNote({ id: note.public_note_id, created_by: currentUserId })
+				: createPublicNote([{ created_by: currentUserId, related_note: note.id }])
+		},
+		{
 			title: note.is_archived ? 'Remove from archive' : 'Archive',
-			icon: TbArchive,
+			icon: note.is_archived ? TbArchiveOff : TbArchive,
 			event: () => currentUserId && updateNote({
 				id: note.id,
 				is_archived: !(note.is_archived),
@@ -222,11 +289,11 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 			icon: TbTrash,
 			event: () => deleteNote({ id: note.id })
 		},
-		{
-			title: 'Settings',
-			icon: TbSettings,
-			event: () => console.log('coming soon...')
-		}
+		// {
+		// 	title: 'Settings',
+		// 	icon: TbSettings,
+		// 	event: () => console.log('coming soon...')
+		// }
 	]
 	//#endregion
 
@@ -275,10 +342,10 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 					</Tooltip>
 					<Tooltip placement='bottom'>
 						<TooltipTrigger>
-							<TbEyeShare style={{ color: note.public_url ? 'var(--color-green-0)' : 'var(--color-grey-2)' }} />
+							<TbEyeCheck style={{ color: note.public_note_id ? 'var(--color-green-0)' : 'var(--color-grey-2)' }} />
 						</TooltipTrigger>
 						<TooltipContent>
-							{note.public_url
+							{note.public_note_id
 								? <StatusTootip> <TbCheck style={{ color: '#3eca57' }} /> <span> publicly available </span> </StatusTootip>
 								: <StatusTootip> <TbX style={{ color: '#ca3e3e' }}/> not published </StatusTootip>
 							}

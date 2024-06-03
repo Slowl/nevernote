@@ -168,14 +168,14 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 	//#endregion
 
 	//#region CORE
-	const { mutateAsync: updateNote } = useUpdateMutation(
+	const { mutateAsync: archiveNote } = useUpdateMutation(
 		supabase.from('notes'),
 		['id'],
 		`id, is_archived, updated_by`,
 		{
-			onSuccess: (updatedNote) => setToast({
+			onSuccess: (archivedNote) => setToast({
 				...ToastTemplates.successNoteArchived,
-				content: updatedNote?.is_archived ? 'Note successfully archived' : 'Note removed from archives'
+				content: archivedNote?.is_archived ? 'Note successfully archived' : 'Note removed from archives'
 			}),
 			onError: (error) => {
 				setToast({
@@ -278,7 +278,7 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 		{
 			title: note.is_archived ? 'Remove from archive' : 'Archive',
 			icon: note.is_archived ? TbArchiveOff : TbArchive,
-			event: () => currentUserId && updateNote({
+			event: () => currentUserId && archiveNote({
 				id: note.id,
 				is_archived: !(note.is_archived),
 				updated_by: currentUserId,

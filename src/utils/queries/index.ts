@@ -108,6 +108,21 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 	throw new Error('Can\t fetch notes without a valid session')
 }
 //#endregion
+
+//#region GET PUBLIC NOTE
+export const getPublicNote = ({ publicNoteId }: { publicNoteId: string }) => {
+	return (
+		supabase.from('public_notes')
+			.select(`
+				id,
+				created_by,
+				related_note
+			`)
+			.eq('id', publicNoteId)
+			.single()
+	)
+}
+//#endregion
 //#endregion
 
 //#region USER

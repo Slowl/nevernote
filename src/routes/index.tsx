@@ -4,6 +4,7 @@ import { supabase } from '@/services/supabase'
 import { NoteCategory } from '@/types/index'
 import App from '@/pages/App'
 import AuthView from '@/pages/Auth'
+import PublicNote from '@/pages/Public'
 import { NotesList } from '@/components/blocks/NotesList'
 
 export const routes = {
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
 				element: <NotesList category={NoteCategory.ARCHIVED} currentPageTitle={routes[NoteCategory.ARCHIVED].title} />,
 			},
 		],
+	},
+	{
+		path: '/note/:publicNoteId',
+		element: <PublicNote />,
 	},
 	{
 		path: '/login',

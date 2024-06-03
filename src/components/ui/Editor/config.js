@@ -4,14 +4,14 @@ import CheckList from '@editorjs/checklist'
 import LinkTool from '@editorjs/link'
 import Embed from '@editorjs/embed'
 import Marker from '@editorjs/marker'
-import Quote from '@editorjs/quote'
 import Delimiter from '@editorjs/delimiter'
-import Code from '@editorjs/code'
-import InlineCode from '@editorjs/inline-code'
-import Raw from '@editorjs/raw'
 import Table from '@editorjs/table'
-import Warning from '@editorjs/warning'
 import SimpleImage from '@editorjs/simple-image'
+// import Quote from '@editorjs/quote'
+// import Code from '@editorjs/code'
+// import InlineCode from '@editorjs/inline-code'
+// import Raw from '@editorjs/raw'
+// import Warning from '@editorjs/warning'
 
 export const EditorjsPlugins = {
 	header: Header,
@@ -26,12 +26,12 @@ export const EditorjsPlugins = {
 	linkTool: LinkTool,
 	embed: Embed,
 	marker: Marker,
-	quote: Quote,
 	delimiter: Delimiter,
-	code: Code,
-	inlineCode: InlineCode,
-	raw: Raw,
 	table: Table,
-	warning: Warning,
 	simpleImage: SimpleImage,
+	// quote: Quote,
+	// code: Code,
+	// inlineCode: InlineCode,
+	// raw: Raw,
+	// warning: Warning,
 }

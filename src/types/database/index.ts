@@ -160,7 +160,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      getPublicNoteContent: {
+        Args: {
+          note_id: string
+        }
+        Returns: Json
+      }
+      getPublicNoteTitle: {
+        Args: {
+          note_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

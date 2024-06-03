@@ -1,17 +1,17 @@
 import { memo, useEffect } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { TbDeviceFloppy } from 'react-icons/tb'
+import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink } from 'react-icons/tb'
 import { styled } from '@linaria/react'
 import { useInsertMutation, useQuery, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
 import { getNote, getUser } from '@/utils/queries'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/Tooltip'
 import { ToastTemplates } from '@/components/ui/Toast'
 import User from '@/components/ui/User'
 import Editor from '@/components/ui/Editor'
 import Loader from '@/components/ui/Loader'
+import PopoverModal from '@/components/ui/PopoverModal'
 
 //#region STYLES
 const FormNoteContainer = styled.div`
@@ -113,7 +113,7 @@ const FormToolbar = styled.div`
 		gap: .4rem;
 		color: var(--color-grey-1);
 		> div {
-			font-size: .8rem;
+			font-size: .9rem;
 		}
 	}
 	.note-actions {
@@ -159,7 +159,7 @@ const FormToolbar = styled.div`
 		.note-informations {
 			gap: .3rem;
 			> div {
-				font-size: .65rem;
+				font-size: .75rem;
 			}
 		}
 		.note-actions {
@@ -171,6 +171,54 @@ const FormToolbar = styled.div`
 				}
 			}
 		}
+	}
+`
+const InformationContainer = styled.div`
+	display: flex;
+	justify-content: space-between;
+	padding: .3rem 0;
+
+	div {
+		display: flex;
+		align-items: center;
+		gap: .2rem;
+	}
+	a {
+		text-decoration: none;
+		&:focus-visible {
+			outline: 0;
+		}
+	}
+`
+const Button = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: .15rem .6rem;
+	margin: auto;
+	font-size: .7rem;
+	text-decoration: none;
+	color: var(--color-grey-0);
+	border: 1px solid var(--color-black-5);
+	background-color: var(--color-black-1);
+	border-radius: 40px;
+	cursor: pointer;
+	user-select: none;
+	transition: .2s;
+	
+	> svg {
+		width: 10px; height: 10px;
+		flex-shrink: 0;
+		margin-left: .2rem;
+	}
+	
+	&:hover {
+		border-color: var(--color-black-3);
+		background-color: var(--color-black-3);
+	}
+	&:focus-visible {
+		outline: 0;
 	}
 `
 //#endregion
@@ -197,9 +245,17 @@ const FormNote = memo(() => {
 		getNote({ noteId: viewedNoteId ?? '' }),
 		{ enabled: !!(viewedNoteId) && viewedNoteId !== 'new' }
 	)
+	const { data: createdBy } = useQuery(
+		getUser({ userId: fetchedNote?.created_by ?? '' }),
+		{ enabled: !!(fetchedNote?.created_by) }
+	)
 	const { data: updatedBy } = useQuery(
 		getUser({ userId: fetchedNote?.updated_by ?? '' }),
 		{ enabled: !!(fetchedNote?.updated_by) }
+	)
+	const { data: sharedWith } = useQuery(
+		getUser({ userId: fetchedNote?.shared_with?.[0] ?? '' }),
+		{ enabled: !!(fetchedNote?.shared_with?.[0]) }
 	)
 	const { data: currentUser } = useQuery(
 		getUser({ userId: currentUserId ?? '' }),
@@ -299,6 +355,20 @@ const FormNote = memo(() => {
 			}
 		}
 	}
+	const copyToClipboard = async ({ textToCopy, successMessage }: {
+		textToCopy: string;
+		successMessage?: string;
+	}) => {	
+		try {
+			await navigator.clipboard.writeText(textToCopy)
+			setToast({
+				...ToastTemplates.successNoteCreate,
+				content: successMessage || 'Successfully copied to clipboard!'
+			})
+		} catch (error) {
+			console.log(`An error occured whule copying to clipboard: ${error}`)
+		}
+	}
 	//#endregion
 
 	//#region RENDER
@@ -315,6 +385,7 @@ const FormNote = memo(() => {
 									placeholder={`Write your note's title ...`}
 									onChange={(event => setTitle(event.target.value))}
 									value={viewedNote?.title}
+									autoFocus={!(fetchedNote?.title)}
 								/>
 								{/* <div className='action-container'>
 									<div className='action-button'>
@@ -329,7 +400,7 @@ const FormNote = memo(() => {
 											configuration={{
 												holder: 'note-editor',
 												data: fetchedNote?.content,
-												autofocus: false,
+												autofocus: !!(fetchedNote?.title),
 												placeholder: 'Write your note...',
 											}}
 											onChange={(data) => handleCreateOrUpdate({ ...fetchedNote, content: data })}
@@ -343,42 +414,91 @@ const FormNote = memo(() => {
 			</FormInputContainer>
 			<FormToolbar>
 				<div className='note-informations'>
-					{(fetchedNote?.updated_by) && (updatedBy?.first_name) && (
-						<>
-							<div>Last edited by</div>
-							<User
-								firstName={updatedBy?.first_name}
-								lastName={updatedBy.last_name}
-								avatar={updatedBy.avatar}
-								size='md'
-							/>
-						</>
+					{(fetchedNote?.id) && (
+						<PopoverModal
+							options={{ placement: 'top-start' }}
+							triggerElement={{
+								icon: TbInfoCircle,
+								title: 'Informations'
+							}}
+						>
+							{(fetchedNote?.created_by) && (createdBy?.first_name) && (
+								<InformationContainer>
+									<div>Created by</div>
+									<div>
+										<User
+											firstName={createdBy?.first_name}
+											lastName={createdBy.last_name}
+											avatar={createdBy.avatar}
+											size='md'
+										/>
+									</div>
+								</InformationContainer>
+							)}
+							{(fetchedNote?.updated_by) && (updatedBy?.first_name) && (
+								<InformationContainer>
+									<div>Last edited by</div>
+									<div>
+										<User
+											firstName={updatedBy?.first_name}
+											lastName={updatedBy.last_name}
+											avatar={updatedBy.avatar}
+											size='md'
+										/>
+									</div>
+								</InformationContainer>
+							)}
+							{(fetchedNote?.updated_at) && (
+								<InformationContainer>
+									<div>Last edited at</div>
+									<div>
+										{new Date(fetchedNote?.updated_at).toLocaleDateString('en-US', {
+												year: 'numeric',
+												month: 'long',
+												weekday: 'long',
+												day: 'numeric',
+												hour: 'numeric',
+												minute: 'numeric',
+												hour12: false
+											})}
+									</div>
+								</InformationContainer>
+							)}
+							{((fetchedNote?.shared_with && fetchedNote?.shared_with?.length > 0) && (
+								<InformationContainer>
+									<div>Shared with</div>
+									<div>
+										<User
+											firstName={sharedWith?.first_name ?? ''}
+											lastName={sharedWith?.last_name}
+											avatar={sharedWith?.avatar}
+											size='md'
+										/>
+									</div>
+								</InformationContainer>
+							))}
+							{(fetchedNote?.public_note_id) && (
+								<InformationContainer>
+									<div>Public note</div>
+									<div>
+										<a href={`${window.location.origin}/note/${fetchedNote.public_note_id}`} target='_blank' rel='noreferrer'>
+											<Button>
+												View <TbExternalLink />
+											</Button>
+										</a>
+										<Button
+											onClick={() => copyToClipboard({
+												textToCopy: `${window.location.origin}/note/${fetchedNote.public_note_id}`,
+												successMessage: 'Successfully copied the URL to clipboard!'
+											})}
+										>
+											Copy URL <TbCopy />
+										</Button>
+									</div>
+								</InformationContainer>
+							)}
+						</PopoverModal>
 					)}
-					<div>
-						{(fetchedNote?.updated_at) && (
-							<Tooltip placement='top'>
-								<TooltipTrigger>
-									{new Date(fetchedNote?.updated_at).toLocaleDateString('en-US', {
-											year: 'numeric',
-											month: 'long',
-											day: 'numeric',
-										})
-									}
-								</TooltipTrigger>
-								<TooltipContent>
-									{new Date(fetchedNote?.updated_at).toLocaleDateString('en-US', {
-										year: 'numeric',
-										month: 'long',
-										weekday: 'long',
-										day: 'numeric',
-										hour: 'numeric',
-										minute: 'numeric',
-										hour12: false
-									})}
-								</TooltipContent>
-							</Tooltip>
-						)}
-					</div>
 				</div>
 				<div className='note-actions'>
 					{(currentUser) && (

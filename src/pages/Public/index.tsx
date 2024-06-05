@@ -120,7 +120,7 @@ const PublicNote = () => {
 											holder: 'public-note-editor',
 											data: content as OutputData,
 											autofocus: false,
-											readOnly: false,
+											readOnly: true,
 										}}
 									/>
 								</FormBody>

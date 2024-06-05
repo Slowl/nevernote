@@ -6,7 +6,7 @@ import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbArchive, TbArchiveOff, TbT
 import Output from 'editorjs-react-renderer'
 import { supabase } from '@/services/supabase'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
-import { Tables } from '@/types/database'
+import type { Tables } from '@/types/database'
 import { ToastTemplates } from '@/components/ui/Toast'
 import PopoverMenu from '@/components/ui/PopoverMenu'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
@@ -250,8 +250,6 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 		`id`,
 		{
 			onSuccess: () => {
-				navigate(pathname)
-				setIsNoteFormLoading(true)
 				setToast({
 					...ToastTemplates.successNoteDelete,
 					content: 'Note successfully removed from public'

@@ -1,6 +1,6 @@
 import { memo, useEffect, useRef } from 'react'
 import { styled } from '@linaria/react'
-import EditorJS, { EditorConfig, OutputData } from '@editorjs/editorjs'
+import EditorJS, { type EditorConfig, OutputData } from '@editorjs/editorjs'
 // @ts-expect-error
 import DragDrop from 'editorjs-drag-drop'
 // @ts-expect-error
@@ -20,7 +20,7 @@ const EditorContainer = styled.div`
 	.cdx-block {
 		max-width: 100% !important;
 		font-size: .93rem;
-		padding-bottom: 1rem;
+		padding-bottom: 0rem;
 
 		a {
 			color: #0083db;
@@ -173,7 +173,7 @@ const Editor = memo(({ configuration, onChange }: {
 						undo.initialize(configuration.data)
 						new DragDrop(editor)
 					},
-					onChange(api) {
+					onChange: (api) => {
 						requestAnimationFrame(async () => {
 
 							const updatedBlockIndex = api.blocks.getCurrentBlockIndex()

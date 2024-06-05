@@ -1,10 +1,10 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { OutputData } from '@editorjs/editorjs'
+import type { OutputData } from '@editorjs/editorjs'
+import type { Tables } from '@/types/database'
 import { Toast } from '@/types/index';
-import { Tables } from '@/types/database'
 
-interface GeneralState {
+export interface GeneralState {
 	isMobileListNoteVisible: boolean;
 	setIsMobileListNoteVisible: (isVisible: boolean) => void;
 	toast?: Toast;
@@ -18,7 +18,7 @@ export const useGeneralStore = create<GeneralState>()(devtools((set) => ({
 	setToast: (toastItem) => set(() => ({ toast: toastItem }))
 }), { name: 'GENERAL STORE' }))
 
-interface NoteState {
+export interface NoteState {
 	isNoteFormLoading: boolean;
 	viewedNote?: Partial<Tables<'notes'>> & { profiles?: Partial<Tables<'profiles'>>};
 	setContent: (content?: OutputData) => void;
@@ -47,7 +47,7 @@ export const useNoteStore = create<NoteState>()(devtools((set) => ({
 	})),
 }), { name: 'NOTE STORE' }))
 
-interface UserState {
+export interface UserState {
 	currentUserId?: string;
 	setCurrentUserId: (currentUserId: string) => void;
 	resetCurrentUser: () => void;

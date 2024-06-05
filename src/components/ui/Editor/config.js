@@ -1,3 +1,4 @@
+import Paragraph from '@editorjs/paragraph'
 import Header from '@editorjs/header'
 import List from '@editorjs/list'
 import CheckList from '@editorjs/checklist'
@@ -14,6 +15,13 @@ import SimpleImage from '@editorjs/simple-image'
 // import Warning from '@editorjs/warning'
 
 export const EditorjsPlugins = {
+	paragraph: {
+		class: Paragraph,
+		inlineToolbar: true,
+		config: {
+			preserveBlank: true,
+		},
+	},
 	header: Header,
 	list: {
 		class: List,

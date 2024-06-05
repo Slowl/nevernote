@@ -1,7 +1,7 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { styled } from '@linaria/react'
-import { IconType } from 'react-icons'
-import { Popover, PopoverTrigger, PopoverContent, PopoverOptions } from '@/components/ui/Popover'
+import type { IconType } from 'react-icons'
+import { Popover, PopoverTrigger, PopoverContent, type PopoverOptions } from '@/components/ui/Popover'
 
 //#region STYLES
 const TriggerButton = styled.div`
@@ -15,9 +15,10 @@ const TriggerButton = styled.div`
 	}
 `
 const ContentContainer = styled.div`
-	padding: .2rem .6rem;
+	background-color: var(--color-black-2);
+	padding: .5rem .8rem;
 	font-size: .8rem;
-	width: 22rem;
+	width: 23rem;
 
 	@media screen and (max-width: 650px) {
 		width: 21rem;

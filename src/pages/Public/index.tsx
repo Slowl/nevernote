@@ -69,6 +69,7 @@ const FormInputContainer = styled.div`
 	flex-direction: column;
 	flex-grow: 1;
 	width: 100%;
+	height: 90vh;
 	gap: .5rem 0;
 	overflow-y: auto;
 	scrollbar-color: var(--color-black-3) rgba(0,0,0,0);
@@ -106,6 +107,17 @@ const FormBody = styled.div`
 	flex-grow: 1;
 	height: 85svh; min-height: 20vh;
 `
+const NoNoteFallback = styled.div`
+	width: 100%;
+	height: 90vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: 2rem;
+	font-size: 1.5rem;
+	letter-spacing: 1px;
+`
 //#endregion
 
 const PublicNote = () => {
@@ -118,8 +130,6 @@ const PublicNote = () => {
 	const [content, setContent] = useState<OutputData>()
 	const [title, setTitle] = useState('')
 	//#endregion
-
-	console.log(currentSession)
 
 	//#region CORE
 	useEffect(
@@ -150,28 +160,34 @@ const PublicNote = () => {
 				<FormInputContainer>
 					{(isLoading)  
 						? <Loader />
-						: (
-							<>
-								<FormHead>
-									<input
-										type='text'
-										onChange={(event => setTitle(event.target.value))}
-										value={title}
-										disabled
-									/>
-								</FormHead>
-								<FormBody>
-									<Editor
-										configuration={{
-											holder: 'public-note-editor',
-											data: content as OutputData,
-											autofocus: false,
-											readOnly: true,
-										}}
-									/>
-								</FormBody>
-							</>
-						)
+						: (title && content)
+							? (
+								<>
+									<FormHead>
+										<input
+											type='text'
+											onChange={(event => setTitle(event.target.value))}
+											value={title}
+											disabled
+										/>
+									</FormHead>
+									<FormBody>
+										<Editor
+											configuration={{
+												holder: 'public-note-editor',
+												data: content as OutputData,
+												autofocus: false,
+												readOnly: true,
+											}}
+										/>
+									</FormBody>
+								</>
+							)
+							: (
+								<NoNoteFallback>
+									The note you are trying to get is not available anymore ... :(
+								</NoNoteFallback>
+							)
 					}
 				</FormInputContainer>
 			</FormNoteContainer>

@@ -224,14 +224,16 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 		['id'],
 		`id, created_by, related_note`,
 		{
-			onSuccess: (createdPublicNote) => {
-				addPublicNoteId({
+			onSuccess: async (createdPublicNote) => {
+				await addPublicNoteId({
 					id: note.id,
 					public_note_id: createdPublicNote?.[0].id,
 				})
+				await navigator.clipboard.writeText(`${window.location.origin}/note/${createdPublicNote?.[0].id}`)
 				setToast({
 					...ToastTemplates.successNoteCreate,
-					content: 'The note is publicly available at: >> todo'
+					content: 'The note has successfully been published! URL copied to your clipboard',
+					duration: 3000,
 				})
 			},
 			onError: (error) => {

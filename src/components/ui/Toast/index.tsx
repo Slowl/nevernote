@@ -11,7 +11,7 @@ const ToastContainer = styled.div<{ isVisible: boolean, type: ToastType }>`
 	display: flex;
 	align-items: start;
 	gap: .7rem;
-	min-width: 17rem; width: 17rem;
+	min-width: 17rem; width: 22rem;
 	padding: .5rem .5rem .6rem;
 	background-color: ${({ type }) => {
 		switch (type) {

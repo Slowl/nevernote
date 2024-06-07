@@ -62,6 +62,11 @@ export const router = createBrowserRouter([
 	{
 		path: '/note/:publicNoteId',
 		element: <PublicNote />,
+		loader: async () => {
+			const { data: { session } } = await supabase.auth.getSession()
+
+			return session
+		},
 	},
 	{
 		path: '/login',

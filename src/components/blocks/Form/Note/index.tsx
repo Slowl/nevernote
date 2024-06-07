@@ -15,6 +15,7 @@ import Editor from '@/components/ui/Editor'
 import Loader from '@/components/ui/Loader'
 import PopoverModal from '@/components/ui/PopoverModal'
 import ActionsBar, { type ActionsBarProps } from '@/components/ui/ActionsBar'
+import Button from '@/components/ui/Button'
 
 //#region STYLES
 const FormNoteContainer = styled.div`
@@ -384,44 +385,8 @@ const InformationContainer = styled.div`
 		align-items: center;
 		gap: .2rem;
 	}
-	a {
-		text-decoration: none;
-		&:focus-visible {
-			outline: 0;
-		}
-	}
 `
-const Button = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	padding: .15rem .6rem;
-	margin: auto;
-	font-size: .7rem;
-	text-decoration: none;
-	color: var(--color-grey-0);
-	border: 1px solid var(--color-black-5);
-	background-color: var(--color-black-1);
-	border-radius: 40px;
-	cursor: pointer;
-	user-select: none;
-	transition: .2s;
-	
-	> svg {
-		width: 10px; height: 10px;
-		flex-shrink: 0;
-		margin-left: .2rem;
-	}
-	
-	&:hover {
-		border-color: var(--color-black-3);
-		background-color: var(--color-black-3);
-	}
-	&:focus-visible {
-		outline: 0;
-	}
-`
+
 const ActionsBarContainer = styled.div<{ isVisible: boolean }>`
 	position: absolute;
 	bottom: ${({ isVisible }) => isVisible ? '31px' : '0px'};
@@ -620,12 +585,15 @@ const FormToolBar = ({
 							<InformationContainer>
 								<div>Public note</div>
 								<div>
-									<a href={`${window.location.origin}/note/${fetchedNote.public_note_id}`} target='_blank' rel='noreferrer'>
-										<Button>
-											View <TbExternalLink />
-										</Button>
-									</a>
 									<Button
+										size='sm'
+										href={`${window.location.origin}/note/${fetchedNote.public_note_id}`}
+										target='_blank'
+									>
+										View <TbExternalLink />
+									</Button>
+									<Button
+										size='sm'
 										onClick={() => copyToClipboard({
 											textToCopy: `${window.location.origin}/note/${fetchedNote.public_note_id}`,
 											successMessage: 'Successfully copied the URL to clipboard!'
@@ -641,8 +609,8 @@ const FormToolBar = ({
 			</div>
 			<div className='note-actions'>
 				{(currentUser) && (
-					<div
-						className={`button ${!(viewedNote?.title) && 'disabled'}`}
+					<Button
+						isDisabled={!(viewedNote?.title)}
 						onClick={
 							() => handleCreateOrUpdate(viewedNote)
 							.then(() => setToast((viewedNote?.id) ? ToastTemplates.successNoteUpdate : ToastTemplates.successNoteCreate))
@@ -650,7 +618,7 @@ const FormToolBar = ({
 						}
 					>
 						Save <TbDeviceFloppy />
-					</div>
+					</Button>
 				)}
 			</div>
 		</FormToolbar>

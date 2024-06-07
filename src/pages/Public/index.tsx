@@ -1,16 +1,58 @@
+import NevernoteLogo from '../../assets/nevernote_white512.png'
 import { themeDark } from '../../styles'
 import { styled } from '@linaria/react'
+import { Session } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLoaderData, useParams } from 'react-router-dom'
+import { TbArrowRight, TbLogin2 } from 'react-icons/tb'
 import { OutputData } from '@editorjs/editorjs'
 import { supabase } from '@/services/supabase'
+import useSupabaseSession from '@/utils/hooks/useSupabaseSession'
 import Loader from '@/components/ui/Loader'
 import Editor from '@/components/ui/Editor'
+import Button from '@/components/ui/Button'
 
 //#region STYLES
 const AppContainer = styled.div`
+	position: relative;
 	width: 100%; height: 100svh;
+`
+const PublicNavBar = styled.nav`
+	position: sticky;
+	bottom: 0;
 	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: .7rem 1rem;
+	background-color: var(--color-black-1);
+	border-radius: 20px 20px 0 0;
+
+	div {
+		display: flex;
+		align-items: center;
+		gap: .6rem;
+		img {
+			display: block;
+			width: 38px; height: 38px;
+		}
+		span {
+			font-size: 1.2rem;
+			font-weight: bold;
+			letter-spacing: 1px;
+		}
+	}
+
+	@media screen and (max-width: 650px) {
+		div {
+			img {
+				display: block;
+				width: 34px; height: 34px;
+			}
+			span {
+				font-size: 1.1rem;
+			}
+		}
+	}
 `
 const FormNoteContainer = styled.div`
 	display: flex;
@@ -70,10 +112,14 @@ const PublicNote = () => {
 
 	//#region SETUP
 	const { publicNoteId } = useParams()
+	const session = useLoaderData() as Session | null
+	const currentSession = useSupabaseSession(supabase, session)
 	const [isLoading, setIsLoading] = useState(false)
 	const [content, setContent] = useState<OutputData>()
 	const [title, setTitle] = useState('')
 	//#endregion
+
+	console.log(currentSession)
 
 	//#region CORE
 	useEffect(
@@ -129,6 +175,20 @@ const PublicNote = () => {
 					}
 				</FormInputContainer>
 			</FormNoteContainer>
+			<PublicNavBar>
+				<div>
+					<img src={NevernoteLogo}/>
+					<span> Nevernote. </span>
+				</div>
+				<div>
+					<Button href='/'>
+						{currentSession?.user.id
+							? <> My notes <TbArrowRight /></>
+							: <> Sign-in <TbLogin2 /> </>
+						}
+					</Button>
+				</div>
+			</PublicNavBar>
 		</AppContainer>
 	)
 	//#endregion

@@ -10,12 +10,14 @@ const ActionsBarContainer = styled.div`
 	background-color: var(--color-black-1);
 	border: 1px solid var(--color-black-3);
 	border-radius: 25px;
+	z-index: 1000;
 
 	div {
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		gap: 1rem;
+		background-color: var(--color-black-1);
 		border-right: 1px solid var(--color-black-2);
 		width: 100%;
 		padding: .5rem .7rem;

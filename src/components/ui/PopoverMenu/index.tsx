@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { styled } from '@linaria/react'
 import { IconType } from 'react-icons'
 import { Popover, PopoverTrigger, PopoverContent, PopoverOptions } from '@/components/ui/Popover'
@@ -30,7 +30,7 @@ const TriggerButton = styled.div`
 		background-color: var(--color-black-5);
 	}
 `
-const ActionButton = styled.div`
+const ActionButton = styled.div<{ isInConfirmState: boolean }>`
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -38,9 +38,10 @@ const ActionButton = styled.div`
 	font-size: .8rem;
 	cursor: pointer;
 	transition: .2s;
+	background-color: ${({ isInConfirmState }) => isInConfirmState ? 'var(--color-red-0)' : 'var(--color-black-0)'};
 
 	&:hover {
-		background-color: var(--color-black-2);
+		background-color: ${({ isInConfirmState }) => isInConfirmState ? 'var(--color-red-0)' : 'var(--color-black-2)'};
 	}
 	@media screen and (max-width: 650px) {
 		padding: .7rem 1rem;
@@ -55,11 +56,33 @@ interface PopoverMenuProps {
 		title: string;
 		icon: IconType;
 		event: () => void;
+		withConfirmation?: boolean;
 	}[];
 	options: PopoverOptions;
 }
 
 const PopoverMenu = ({ children, list, options }: PopoverMenuProps) => {
+
+	const [confirmation, setConfirmation] = useState({
+		for: '',
+		isSet: false,
+	})
+
+	const handleClickEvent = ({ clickEvent, action }: {
+		clickEvent: React.MouseEvent<HTMLDivElement, MouseEvent>,
+		action: PopoverMenuProps['list'][number],
+	}) => {
+		let resetTimeout
+		clickEvent.stopPropagation()
+		if ((action.withConfirmation && !(confirmation.isSet))) {
+			setConfirmation({ for: action.title, isSet: true })
+			resetTimeout = setTimeout(() => setConfirmation({ for: '', isSet: false }), 5000)
+		} else {
+			setConfirmation({ for: '', isSet: false })
+			action.event()
+			clearTimeout(resetTimeout)
+		}
+	}
 
 	return (
 		<Popover {...options}>
@@ -71,8 +94,13 @@ const PopoverMenu = ({ children, list, options }: PopoverMenuProps) => {
 			<PopoverContent>
 				<MenuListContainer>
 					{list.map((action) => (
-						<ActionButton onClick={(event) => { event.stopPropagation(), action.event() }} key={action.title}>
-							<action.icon /> {action.title}
+						<ActionButton
+							isInConfirmState={((confirmation.for === action.title) && confirmation.isSet)}
+							onClick={(event) => handleClickEvent({ clickEvent: event, action })}
+							key={action.title}
+						>
+							<action.icon />
+							{((confirmation.for === action.title) && confirmation.isSet) ? 'Click to confirm' : action.title}
 						</ActionButton>
 					))}
 				</MenuListContainer>

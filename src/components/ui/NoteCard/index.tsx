@@ -273,7 +273,7 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 			icon: note.public_note_id ? TbEyeOff : TbEyeShare,
 			event: () => note.public_note_id
 				? deletePublicNote({ id: note.public_note_id, created_by: currentUserId })
-				: createPublicNote([{ created_by: currentUserId, related_note: note.id }])
+				: createPublicNote([{ created_by: currentUserId, related_note: note.id }]),
 		},
 		{
 			title: note.is_archived ? 'Remove from archive' : 'Archive',
@@ -282,12 +282,13 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 				id: note.id,
 				is_archived: !(note.is_archived),
 				updated_by: currentUserId,
-			})
+			}),
 		},
 		{
 			title: 'Delete',
 			icon: TbTrash,
-			event: () => deleteNote({ id: note.id })
+			event: () => deleteNote({ id: note.id }),
+			withConfirmation: true,
 		},
 		// {
 		// 	title: 'Settings',

@@ -13,7 +13,7 @@
     "@editorjs/checklist": "^1.6.0",
     "@editorjs/code": "latest",
     "@editorjs/delimiter": "^1.4.0",
-    "@editorjs/editorjs": "^2.29.1",
+    "@editorjs/editorjs": "^2.30.0-rc.10",
     "@editorjs/embed": "^2.7.2",
     "@editorjs/header": "^2.8.1",
     "@editorjs/inline-code": "latest",

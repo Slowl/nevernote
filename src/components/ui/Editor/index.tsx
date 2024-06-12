@@ -97,6 +97,13 @@ const EditorContainer = styled.div`
 			background: var(--color-black-3) !important;
 		}
 	}
+	.ce-popover__container {
+		background-color: var(--color-black-2);
+		border: 1px solid var(--color-black-4);
+		@media screen and (max-width: 650px) {
+			bottom: 70px;
+		}
+	}
 	.ce-popover {
 		color: var(--color-grey-0);
 		background-color: var(--color-black-2);
@@ -113,6 +120,9 @@ const EditorContainer = styled.div`
 		@media screen and (max-width: 650px) {
 			bottom: 70px;
 		}
+	}
+	.ce-popover-item-separator__line {
+		background-color: var(--color-black-5);
 	}
 	.ce-popover-item:hover:not(.ce-popover-item--no-hover) {
 		background-color: var(--color-black-3) !important;

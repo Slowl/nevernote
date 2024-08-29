@@ -177,6 +177,7 @@ const Editor = memo(({ configuration, onChange }: {
 			let throttleTimeout: NodeJS.Timeout
 			if (!editorRef.current) {
 				const editor = new EditorJS({
+					//@ts-ignore
 					tools: EditorjsPlugins,
 					onReady: () => {
 						const undo = new Undo({ editor, config: { debounceTimer: 300 } })

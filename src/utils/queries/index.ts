@@ -15,6 +15,7 @@ export const getNote = ({ noteId }: { noteId: string }) => {
 				updated_by,
 				updated_at,
 				is_archived,
+				color,
 				shared_with,
 				public_note_id
 			`)
@@ -41,6 +42,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_by,
 					updated_at,
 					is_archived,
+					color,
 					shared_with,
 					public_note_id
 			`)
@@ -59,6 +61,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_by,
 					updated_at,
 					is_archived,
+					color,
 					shared_with,
 					public_note_id,
 					profiles(id, first_name, last_name, avatar)
@@ -78,6 +81,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_by,
 					updated_at,
 					is_archived,
+					color,
 					shared_with,
 					public_note_id
 			`)
@@ -96,6 +100,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_by,
 					updated_at,
 					is_archived,
+					color,
 					shared_with,
 					public_note_id
 			`)

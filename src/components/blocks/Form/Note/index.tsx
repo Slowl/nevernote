@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink, TbArrowBackUp, TbArrowForwardUp, TbChevronDown, TbChevronUp } from 'react-icons/tb'
+import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink, TbArrowBackUp, TbArrowForwardUp, TbChevronDown, TbChevronUp, TbColorSwatch } from 'react-icons/tb'
 import { styled } from '@linaria/react'
 import { useInsertMutation, useQuery, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
@@ -26,6 +26,8 @@ const FormNoteContainer = styled.div`
 	z-index: 0;
 	@media screen and (max-width: 650px) {
 		height: calc(100svh - 48px);
+		min-height: calc(100svh - 48px);
+		max-height: calc(100svh - 48px);
 	}
 `
 const FormInputContainer = styled.div`
@@ -48,7 +50,7 @@ const FormBody = styled.div`
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
-	height: 85svh; min-height: 20vh;
+	height: 85svh; min-height: 85vh; max-height: 85svh;
 `
 //#endregion
 
@@ -216,7 +218,7 @@ const FormNote = memo(() => {
 export default FormNote
 
 //#region HEAD COMPONENT
-//#region STYLE
+//#region STYLES
 const FormHeadContainer = styled.div`
 	display: flex;
 	align-items: center;
@@ -297,7 +299,7 @@ const FormHead = ({ viewedNote }: { viewedNote: NoteState['viewedNote'] }) => {
 //#endregion
 
 //#region TOOLBAR COMPONENT
-//#region STYLE
+//#region STYLES
 const FormToolbar = styled.div`
 	display: flex;
 	align-items: center;
@@ -393,12 +395,14 @@ const ActionsBarContainer = styled.div<{ isVisible: boolean }>`
 	width: 100%;
 	display: flex;
 	justify-content: center;
+	margin: auto;
 	opacity: ${({ isVisible }) => isVisible ? 1 : 0};
 	visibility: ${({ isVisible }) => isVisible ? 'visible' : 'hidden'};
 	transition: .2s;
 
 	@media screen and (max-width: 650px) {
 		bottom: ${({ isVisible }) => isVisible ? '55px' : '0px'};
+		left: -2px;
 	}
 `
 const ActionsBarTrigger = styled.div<{ isActionsVisible: boolean }>`
@@ -435,7 +439,7 @@ const FormToolBar = ({
 	handleCreateOrUpdate,
 }: {
 	viewedNote: NoteState['viewedNote'];
-	fetchedNote: Omit<Tables<'notes'>, 'color'> | null | undefined;
+	fetchedNote: Tables<'notes'> | null | undefined;
 	currentUser: Pick<Tables<'profiles'>, 'id' | 'first_name' |'last_name' | 'avatar'> | null | undefined;
 	handleCreateOrUpdate: (note: NoteState['viewedNote']) => Promise<void>;
 }) => {
@@ -487,6 +491,14 @@ const FormToolBar = ({
 			label: 'Redo',
 			icon: TbArrowForwardUp,
 			event: () => editorElement?.dispatchEvent(new KeyboardEvent('keydown', { 'key': 'z', 'ctrlKey': true, 'shiftKey': true, 'metaKey': true })),
+		},
+		{
+			label: 'Colors',
+			icon: TbColorSwatch,
+			popover: {
+				options: { placement: 'top' },
+				content: <ColorPicker />
+			},
 		},
 		{
 			label: 'Hide',
@@ -622,6 +634,74 @@ const FormToolBar = ({
 				)}
 			</div>
 		</FormToolbar>
+	)
+}
+//#endregion
+
+//#region COLORS PICKER
+//#region STYLES
+const ColorPickerContainer = styled.div`
+	padding: .4rem .8rem;
+	gap: 1rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+	transition: .2s;
+
+	&:hover > div {
+		opacity: .6;
+		&:hover {
+				opacity: 1;
+			}
+	}
+`
+const ColorContainer = styled.div<{ color: string, isSelected: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px; height: 24px;
+	border: 1px solid var(--color-black-6);
+	border-radius: 50%;
+	background-color: ${({ color }) => color};
+	cursor: pointer;
+	transition: .2s;
+
+	&:after {
+		display: block;
+		width: ${({ isSelected }) => isSelected ? '4px' : 0};
+		height: ${({ isSelected }) => isSelected ? '4px' : 0};
+		content: '';
+		background-color: var(--color-white);
+		border-radius: 50%;
+		transition: .2s;
+	}
+`
+//#endregion
+const ColorPicker = () => {
+
+	const viewedNote = useNoteStore((state) => state.viewedNote)
+	const setViewedNote = useNoteStore((state) => state.setViewedNote)
+	const colors = ['#3f6abf', '#FF674D', '#4DA167', 'transparent']
+
+	const { mutateAsync: updateColor } = useUpdateMutation(
+		supabase.from('notes'),
+		['id'],
+		`id, color`,
+		{
+			onSuccess: (updatedNote) => setViewedNote({ ...viewedNote, ...updatedNote })
+		}
+	)
+
+	return (
+		<ColorPickerContainer>
+			{colors.map((color) => (
+				<ColorContainer
+					color={color}
+					isSelected={color === viewedNote?.color}
+					onClick={() => updateColor({ id: viewedNote?.id, color })}
+				/>
+			))}
+		</ColorPickerContainer>
 	)
 }
 //#endregion

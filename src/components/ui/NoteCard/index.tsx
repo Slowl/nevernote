@@ -13,9 +13,10 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip
 import User from '@/components/ui/User'
 
 //#region STYLES
-const NoteCardContainer = styled.div<{ isViewed: boolean }>`
+const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string | null }>`
 	display: flex;
 	flex-direction: column;
+	position: relative;
 	width: 95%; max-height: 7.5rem;
 	margin: auto;
 	gap: .3rem 0;
@@ -25,6 +26,18 @@ const NoteCardContainer = styled.div<{ isViewed: boolean }>`
 	border-radius: 8px;
 	cursor: pointer;
 	transition: .2s;
+
+	&:before {
+		content: '';
+		display: block;
+		position: absolute;
+		width: 10px; height: 10px;
+		border-radius: 50%;
+		background-color: ${({ selectedColor }) => selectedColor ? selectedColor : ''};
+		top: -4px;
+		left: -4px;
+		transition: .3s;
+	}
 	
 	.main-container {
 		display: flex;
@@ -151,7 +164,7 @@ const StatusTootip = styled.div`
 
 interface NoteCardProps {
 	note: Pick<
-		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'public_note_id' | 'shared_with'
+		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'public_note_id' | 'shared_with' | 'color'
 	> & { profiles?: Tables<'profiles'> };
 	onClick: () => void;
 }
@@ -300,7 +313,12 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 
 	//#region RENDER
 	return (
-		<NoteCardContainer onClick={onClick} isViewed={viewedNote?.id === note.id} key={note.id}>
+		<NoteCardContainer
+			onClick={onClick}
+			isViewed={viewedNote?.id === note.id}
+			selectedColor={note.color}
+			key={note.id}
+		>
 			<div className='main-container'>
 				<div className='content-container'>
 					<div className='title'> {(note.title.length > 30) ? `${note.title.slice(0, 30)}…` : note.title} </div>

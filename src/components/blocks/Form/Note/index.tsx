@@ -681,7 +681,7 @@ const ColorPicker = () => {
 
 	const viewedNote = useNoteStore((state) => state.viewedNote)
 	const setViewedNote = useNoteStore((state) => state.setViewedNote)
-	const colors = ['#3f6abf', '#FF674D', '#4DA167', 'transparent']
+	const colors = ['#066aff', '#FF674D', '#22a24a', 'transparent']
 
 	const { mutateAsync: updateColor } = useUpdateMutation(
 		supabase.from('notes'),

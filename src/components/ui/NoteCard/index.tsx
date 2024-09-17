@@ -2,7 +2,7 @@ import { memo } from 'react'
 import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useInsertMutation, useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
-import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical } from 'react-icons/tb'
+import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical, TbPin, TbPinnedOff, TbPinned } from 'react-icons/tb'
 import Output from 'editorjs-react-renderer'
 import { supabase } from '@/services/supabase'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
@@ -25,18 +25,30 @@ const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string
 	border: 1px solid ${({ isViewed }) => isViewed ? 'var(--color-grey-2)' : 'var(--color-black-6)'};
 	border-radius: 8px;
 	cursor: pointer;
-	transition: .2s;
+	opacity: 1;
+	translate: 0px 0px;
+	transition:
+		border .2s,
+		transform .2s,
+		opacity .35s,
+		translate .35s
+	;
 
 	&:before {
 		content: '';
 		display: block;
 		position: absolute;
-		width: 10px; height: 10px;
+		width: 15px; height: 15px;
 		border-radius: 50%;
 		background-color: ${({ selectedColor }) => selectedColor ? selectedColor : ''};
-		top: -4px;
-		left: -4px;
+		top: -6px;
+		left: -6px;
 		transition: .3s;
+	}
+
+	@starting-style {
+		opacity: 0;
+		translate: 0 -10px;
 	}
 	
 	.main-container {
@@ -160,11 +172,22 @@ const StatusTootip = styled.div`
 		width: 10px; height: 10px;
 	}
 `
+const PinContainer = styled.div<{ isPinned: boolean }>`
+	width: 15px;
+	position: absolute;
+	left: 46%; top: -10px;
+	color: var(--color-white);
+	visibility: ${({ isPinned }) => isPinned ? 'visible' : 'hidden'};
+	opacity: ${({ isPinned }) => isPinned ? 1 : 0};
+	translate: ${({ isPinned }) => isPinned ? '0px 0px': '0px -5px'};
+	transition: .3s;
+	svg { fill: var(--color-black-1); }
+`
 //#endregion
 
 interface NoteCardProps {
 	note: Pick<
-		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'public_note_id' | 'shared_with' | 'color'
+		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'public_note_id' | 'shared_with' | 'color' | 'pinned'
 	> & { profiles?: Tables<'profiles'> };
 	onClick: () => void;
 }
@@ -181,6 +204,25 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 	//#endregion
 
 	//#region CORE
+	const { mutateAsync: pinNote } = useUpdateMutation(
+		supabase.from('notes'),
+		['id'],
+		`id, pinned`,
+		{
+			onSuccess: (pinnedNote) => setToast({
+				...ToastTemplates.sucessDefault,
+				content: pinnedNote?.pinned ? 'Note successfully pinned' : 'Note unpinned'
+			}),
+			onError: (error) => {
+				setToast({
+					...ToastTemplates.errorNote,
+					content: viewedNote?.is_archived ? 'Error while pinning the note...' : 'Error while pinning...'
+				})
+				console.error('Error while pinning the note: ', error)
+				throw new Error(`Error while pinning the note: ${error}`)
+			}
+		}
+	)
 	const { mutateAsync: archiveNote } = useUpdateMutation(
 		supabase.from('notes'),
 		['id'],
@@ -282,6 +324,13 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 	//#region EVENTS
 	const menuList = [
 		{
+			title: note.pinned ? 'Unpin the note' : 'Pin the note',
+			icon: note.pinned ? TbPinnedOff : TbPinned,
+			event: () => note.pinned
+				? pinNote({ id: note.id, pinned: false })
+				: pinNote({ id: note.id, pinned: true }),
+		},
+		{
 			title: note.public_note_id ? 'Remove from public' : 'Publish publicly',
 			icon: note.public_note_id ? TbEyeOff : TbEyeShare,
 			event: () => note.public_note_id
@@ -319,6 +368,7 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 			selectedColor={note.color}
 			key={note.id}
 		>
+			<PinContainer isPinned={note.pinned}> <TbPin /> </PinContainer>
 			<div className='main-container'>
 				<div className='content-container'>
 					<div className='title'> {(note.title.length > 30) ? `${note.title.slice(0, 30)}…` : note.title} </div>

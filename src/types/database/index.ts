@@ -19,6 +19,7 @@ export type Database = {
 					created_by: string
 					id: string
 					is_archived: boolean
+					pinned: boolean
 					public_note_id: string | null
 					shared_with: string[] | null
 					title: string
@@ -32,6 +33,7 @@ export type Database = {
 					created_by: string
 					id?: string
 					is_archived?: boolean
+					pinned?: boolean
 					public_note_id?: string | null
 					shared_with?: string[] | null
 					title: string
@@ -45,6 +47,7 @@ export type Database = {
 					created_by?: string
 					id?: string
 					is_archived?: boolean
+					pinned?: boolean
 					public_note_id?: string | null
 					shared_with?: string[] | null
 					title?: string

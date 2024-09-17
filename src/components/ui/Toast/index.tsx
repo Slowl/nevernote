@@ -118,6 +118,13 @@ export const ToastTemplates = {
 		icon: TbCircleCheck,
 		duration: 1500,
 	},
+	sucessDefault: {
+		isVisible: true,
+		content: '',
+		type: ToastType.SUCCESS,
+		icon: TbCircleCheck,
+		duration: 1500,
+	},
 	errorNote: {
 		isVisible: true,
 		content: 'An error occured...',

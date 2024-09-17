@@ -29,7 +29,16 @@
 			"@/store/*": ["src/store/*"],
 			"@/types/*": ["src/types/*"],
 			"@/utils/*": ["src/utils/*"],
-		}
+		},
+		"plugins": [
+			{
+        "name": "@styled/typescript-styled-plugin",
+        "lint": {
+          "validProperties": ["starting-style"],
+          "unknownAtRules": "ignore"
+        }
+      }
+		]
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

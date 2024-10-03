@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react'
+import { memo, useEffect } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink, TbArrowBackUp, TbArrowForwardUp, TbChevronDown, TbChevronUp, TbColorSwatch } from 'react-icons/tb'
@@ -30,20 +30,21 @@ const FormNoteContainer = styled.div`
 		max-height: calc(100svh - 48px);
 	}
 `
-const FormInputContainer = styled.div`
+const FormInputContainer = styled.div<{ isToolbarActionsVisible: boolean; }>`
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
 	width: 100%;
-	margin-bottom: 1rem;
+	margin-bottom: ${({ isToolbarActionsVisible }) => isToolbarActionsVisible ? '1.3rem' : '.2rem'};
 	gap: .5rem 0;
 	overflow-y: auto;
 	scrollbar-color: var(--color-black-3) rgba(0,0,0,0);
 	scrollbar-width: thin;
+	transition: .2s;
 
 	@media screen and (max-width: 650px) {
 		overflow-x: hidden;
-		margin-bottom: 2.4rem;
+		margin-bottom: ${({ isToolbarActionsVisible }) => isToolbarActionsVisible ? '2.6rem' : '.5rem'};
 	}
 `
 const FormBody = styled.div`
@@ -68,6 +69,7 @@ const FormNote = memo(() => {
 	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
 	const currentUserId = useUserStore((state) => state.currentUserId)
 	const setToast = useGeneralStore((state) => state.setToast)
+	const isToolbarActionsVisible = useGeneralStore((state) => state.isToolbarActionsVisible)
 	//#endregion
 	
 	//#region CORE
@@ -179,7 +181,7 @@ const FormNote = memo(() => {
 	//#region RENDER
 	return (
 		<FormNoteContainer>
-			<FormInputContainer>
+			<FormInputContainer isToolbarActionsVisible={isToolbarActionsVisible}>
 				{(isNoteLoading)  
 					? <Loader />
 					: (
@@ -448,7 +450,8 @@ const FormToolBar = ({
 	const editorElement = document.getElementById(editorId)
 	const setToast = useGeneralStore((state) => state.setToast)
 	const storedActionsVisible = localStorage.getItem('isActionsVisible') && JSON.parse(localStorage.getItem('isActionsVisible') ?? '')
-	const [isActionsVisible, setIsActionsVisible] = useState((storedActionsVisible === null) ? true : storedActionsVisible)
+	const isToolbarActionsVisible = useGeneralStore((state) => state.isToolbarActionsVisible)
+	const setIsToolbarActionsVisible = useGeneralStore((state) => state.setIsToolbarActionsVisible)
 	//#endregion
 
 	//#region CORE
@@ -463,6 +466,11 @@ const FormToolBar = ({
 	const { data: sharedWith } = useQuery(
 		getUser({ userId: fetchedNote?.shared_with?.[0] ?? '' }),
 		{ enabled: !!(fetchedNote?.shared_with?.[0]) }
+	)
+
+	useEffect(
+		() => {(storedActionsVisible !== null) && setIsToolbarActionsVisible(storedActionsVisible)},
+		[],
 	)
 	//#endregion
 
@@ -481,6 +489,7 @@ const FormToolBar = ({
 			console.error(`An error occured whule copying to clipboard: ${error}`)
 		}
 	}
+
 	const editorActions: ActionsBarProps['actions'] = [
 		{
 			label: 'Undo',
@@ -505,7 +514,7 @@ const FormToolBar = ({
 			icon: TbChevronDown,
 			event: () => {
 				localStorage.setItem('isActionsVisible', JSON.stringify(false))
-				setIsActionsVisible(false)
+				setIsToolbarActionsVisible(false)
 			}
 		}
 	]
@@ -515,17 +524,17 @@ const FormToolBar = ({
 		<FormToolbar>
 			{currentUser && (
 				<>
-					<ActionsBarContainer isVisible={isActionsVisible}>
+					<ActionsBarContainer isVisible={isToolbarActionsVisible}>
 						<ActionsBar actions={editorActions}/>
 					</ActionsBarContainer>
 					<ActionsBarTrigger
-							isActionsVisible={isActionsVisible}
-							onClick={() => {
-								localStorage.setItem('isActionsVisible', JSON.stringify(true))
-								setIsActionsVisible(true)
-							}}
-						>
-							<TbChevronUp />
+						isActionsVisible={isToolbarActionsVisible}
+						onClick={() => {
+							localStorage.setItem('isActionsVisible', JSON.stringify(true))
+							setIsToolbarActionsVisible(true)
+						}}
+					>
+						<TbChevronUp />
 					</ActionsBarTrigger>
 				</>
 			)}
@@ -576,7 +585,8 @@ const FormToolBar = ({
 											hour: 'numeric',
 											minute: 'numeric',
 											hour12: false
-										})}
+										}
+									)}
 								</div>
 							</InformationContainer>
 						)}

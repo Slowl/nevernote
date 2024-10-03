@@ -182,7 +182,7 @@ const Editor = memo(({ configuration, onChange }: {
 					onReady: () => {
 						const undo = new Undo({ editor, config: { debounceTimer: 300 } })
 						undo.initialize(configuration.data)
-						new DragDrop(editor)
+						new DragDrop(editor, '1px dotted #fff')
 					},
 					onChange: (api) => {
 						requestAnimationFrame(async () => {

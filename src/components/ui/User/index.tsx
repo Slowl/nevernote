@@ -37,7 +37,7 @@ const NameContainer = styled.div<{ size: UserProps['size'] }>`
 	padding: .1rem .3rem;
 	border-radius: 4px;
 	white-space: nowrap;
-	font-size: ${({ size }) => size ? sizes[size].font : ''};
+	font-size: ${({ size }: { size: UserProps['size'] }) => size ? sizes[size].font : ''};
 `
 //#endregion
 

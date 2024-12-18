@@ -40,8 +40,8 @@ const sizes = {
 }
 
 const AvatarContainer = styled.div<{ avatar?: AvatarProps['avatar']; size: AvatarProps['size'] }>`
-	width: ${({ size }) => size ? sizes[size].avatar.width : ''};
-	height: ${({ size }) => size ? sizes[size].avatar.height : ''};
+	width: ${({ size }: { size: AvatarProps['size'] }) => size ? sizes[size].avatar.width : ''};
+	height: ${({ size }: { size: AvatarProps['size'] }) => size ? sizes[size].avatar.height : ''};
 	display: flex;
 	justify-content: center;
 	align-items: center;

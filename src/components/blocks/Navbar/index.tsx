@@ -210,7 +210,7 @@ const Navbar = () => {
 							<TooltipTrigger>
 								<NavigationItem
 									isCurrent={route.path === pathname}
-									onClick={(event) => (route.path === pathname) ? toggleMobileNoteList(event) : handleNavigationClick()}
+									onClick={(event: React.MouseEvent<HTMLDivElement>) => (route.path === pathname) ? toggleMobileNoteList(event) : handleNavigationClick()}
 								>
 									<route.icon />
 								</NavigationItem>

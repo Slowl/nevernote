@@ -58,7 +58,7 @@ const Toast = () => {
 
 	const toast = useGeneralStore((state) => state.toast)
 	const setToast = useGeneralStore((state) => state.setToast)
-	const toastTimeout = useRef<NodeJS.Timeout>()
+	const toastTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
 	useEffect(
 		() => {

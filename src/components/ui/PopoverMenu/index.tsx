@@ -96,7 +96,7 @@ const PopoverMenu = ({ children, list, options }: PopoverMenuProps) => {
 					{list.map((action) => (
 						<ActionButton
 							isInConfirmState={((confirmation.for === action.title) && confirmation.isSet)}
-							onClick={(event) => handleClickEvent({ clickEvent: event, action })}
+							onClick={(event: React.MouseEvent<HTMLDivElement, MouseEvent> ) => handleClickEvent({ clickEvent: event, action })}
 							key={action.title}
 						>
 							<action.icon />

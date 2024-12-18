@@ -1,13 +1,16 @@
 import Paragraph from '@editorjs/paragraph'
 import Header from '@editorjs/header'
-import List from '@editorjs/list'
-import CheckList from '@editorjs/checklist'
+import EditorjsList from '@editorjs/list'
+// import List from '@editorjs/list'
 import LinkTool from '@editorjs/link'
 import Embed from '@editorjs/embed'
 import Marker from '@editorjs/marker'
 import Delimiter from '@editorjs/delimiter'
 import Table from '@editorjs/table'
 import SimpleImage from '@editorjs/simple-image'
+import Underline from '@editorjs/underline'
+import CheckList from '@editorjs/checklist'
+// import Hyperlink from 'editorjs-hyperlink'
 // import Quote from '@editorjs/quote'
 // import Code from '@editorjs/code'
 // import InlineCode from '@editorjs/inline-code'
@@ -24,19 +27,30 @@ export const EditorjsPlugins = {
 	},
 	header: Header,
 	list: {
-		class: List,
+		class: EditorjsList,
 		inlineToolbar: true,
 		config: {
 			defaultStyle: 'unordered'
 		}
 	},
-	checklist: CheckList,
 	linkTool: LinkTool,
 	embed: Embed,
 	marker: Marker,
 	delimiter: Delimiter,
 	table: Table,
+	underline: Underline,
 	simpleImage: SimpleImage,
+	checklist: CheckList,
+	// hyperlink: {
+	// 	class: Hyperlink,
+	// 	config: {
+	// 		target: '_blank',
+	// 		rel: 'nofollow',
+	// 		availableTargets: ['_blank', '_self'],
+	// 		availableRels: ['noreferrer', 'noopener noreferrer'],
+	// 		validate: false,
+	// 	}
+	// },
 	// quote: Quote,
 	// code: Code,
 	// inlineCode: InlineCode,

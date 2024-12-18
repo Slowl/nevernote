@@ -3,7 +3,7 @@ import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useInsertMutation, useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
 import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical, TbPin, TbPinnedOff, TbPinned } from 'react-icons/tb'
-import Output from 'editorjs-react-renderer'
+// import Output from 'editorjs-react-renderer'
 import { supabase } from '@/services/supabase'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import type { Tables } from '@/types/database'
@@ -64,6 +64,15 @@ const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string
 			.title {
 				font-size: .85rem;
 				font-weight: bold;
+			}
+			.content-preview-temp {
+				display: flex;
+				align-items: center;
+				height: 100%;
+				position: relative;
+				color: var(--color-grey-1);
+				font-size: .78rem;
+				z-index: 0;
 			}
 			.content-preview {
 				&::after {
@@ -372,7 +381,8 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 			<div className='main-container'>
 				<div className='content-container'>
 					<div className='title'> {(note.title.length > 30) ? `${note.title.slice(0, 30)}…` : note.title} </div>
-					<div className='content-preview'> <Output data={note.content} /> </div>
+					<div className='content-preview-temp'> [ ... ] </div>
+					{/* <div className='content-preview'> <Output data={note.content ?? ''} /> </div> */}
 				</div>
 				{(note.created_by === currentUserId) && (
 					<div className='action-container'>

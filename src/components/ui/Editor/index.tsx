@@ -11,6 +11,7 @@ import { EditorjsPlugins } from './config'
 //#region STYLES
 const EditorContainer = styled.div`
 	width: 100%; height: 100%;
+	font-weight: 500;
 	::selection {
 		background: var(--color-grey-1);
 		color: var(--color-black-2);
@@ -19,7 +20,7 @@ const EditorContainer = styled.div`
 
 	.cdx-block {
 		max-width: 100% !important;
-		font-size: .93rem;
+		font-size: 1.05rem;
 		padding-bottom: 0rem;
 
 		a {
@@ -100,6 +101,7 @@ const EditorContainer = styled.div`
 	.ce-popover__container {
 		background-color: var(--color-black-2);
 		border: 1px solid var(--color-black-4);
+		* { color: var(--color-grey-0) !important; }
 		@media screen and (max-width: 650px) {
 			bottom: 70px;
 		}
@@ -133,9 +135,9 @@ const EditorContainer = styled.div`
 			color: var(--color-grey-0);
 		}
 	}
-
-	.cdx-checklist__item {
-		.cdx-checklist__item-checkbox-check {
+ 
+	.cdx-list__checkbox, .cdx-list__item, .cdx-checklist__item  {
+		.cdx-list__checkbox-check, .cdx-checklist__item-checkbox-check {
 			width: 18px; height: 18px;
 			border: 0;
 			border-radius: 2px;
@@ -148,12 +150,14 @@ const EditorContainer = styled.div`
 			}
 		}
 	}
-	.cdx-checklist__item--checked {
-		.cdx-checklist__item-checkbox-check {
+
+	.cdx-list__checkbox--checked, .cdx-checklist__item--checked {
+		.cdx-list__checkbox-check, .cdx-checklist__item-checkbox-check {
 			background: var(--color-grey-3);
 		}
 	}
-	.cdx-checklist__item--checked .cdx-checklist__item-checkbox:not(.cdx-checklist__item--checked .cdx-checklist__item-checkbox--no-hover):hover .cdx-checklist__item-checkbox-check {
+
+	.cdx-list__checkbox--checked, .cdx-checklist__item--checked .cdx-checklist__item-checkbox:not(.cdx-list__checkbox--checked .cdx-checklist__item-checkbox--no-hover):hover .cdx-list__checkbox-check {
     background: var(--color-grey-2);
     border-color: var(--color-grey-2);
   }
@@ -166,7 +170,7 @@ const Editor = memo(({ configuration, onChange }: {
 }) => {
 
 	//#region SETUP
-	const editorRef = useRef<EditorJS>()
+	const editorRef = useRef<EditorJS>(null)
 	const setContent = useNoteStore((state) => state.setContent)
 	//#endregion
 
@@ -226,7 +230,7 @@ const Editor = memo(({ configuration, onChange }: {
 		return <EditorContainer id={configuration.holder} />
 	}
 
-	return <>{configuration.holder}</>
+	return undefined
 	//#endregion
 })
 

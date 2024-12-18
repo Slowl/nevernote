@@ -2,7 +2,7 @@ import { css } from '@linaria/core'
 
 export const globals = css`
 	:global() {
-		@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
+		@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300,500&display=swap');
 		*, *::before, *::after { box-sizing: border-box; }
 		* { margin: 0; }
 		html {

@@ -3,7 +3,7 @@ import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useInsertMutation, useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
 import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical, TbPin, TbPinnedOff, TbPinned } from 'react-icons/tb'
-// import Output from 'editorjs-react-renderer'
+import Output from 'editorjs-react-renderer'
 import { supabase } from '@/services/supabase'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import type { Tables } from '@/types/database'
@@ -65,15 +65,6 @@ const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string
 				font-size: .85rem;
 				font-weight: bold;
 			}
-			.content-preview-temp {
-				display: flex;
-				align-items: center;
-				height: 100%;
-				position: relative;
-				color: var(--color-grey-1);
-				font-size: .78rem;
-				z-index: 0;
-			}
 			.content-preview {
 				&::after {
 					display: block;
@@ -85,6 +76,7 @@ const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string
 					z-index: 1000;
 				}
 				position: relative;
+				padding-top: 5px;
 				color: var(--color-grey-1);
 				font-size: .78rem;
 				display: -webkit-box;
@@ -93,11 +85,13 @@ const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string
 				overflow: hidden;
 				line-height: 1rem;
 				z-index: 0;
-				ul {
+				ul, ol {
 					line-height: 1rem;
 					margin: 0;
+					padding-left: 15px;
 				}
 				input[type='checkbox'] {
+					margin: 0px 10px 7px 0;
 					width: 14px !important; height: 14px !important;
 				}
 				a {
@@ -370,6 +364,43 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 	//#endregion
 
 	//#region RENDER
+	const ListRenderer = ({ data }: {
+		data: {
+			style: 'checklist' | 'unordered' | 'ordered';
+			items: { content: string; meta?: { checked: boolean }; }[];
+		};
+	}) => {
+
+		switch (data.style) {
+			case 'checklist': return (
+				data.items.map((checklistItem, index) => (
+					<div key={index}>
+						<input readOnly type='checkbox' id={`checklist-item-${index}`} name={checklistItem.content} checked={checklistItem.meta?.checked} />
+						<label htmlFor={`checklist-item-${index}`}>{checklistItem.content}</label>
+					</div>
+				))
+			)
+			case 'unordered': return (
+				<ul>
+					{data.items.map((unorderedItem, index) => (
+						<li key={index}> {unorderedItem.content} </li>
+					))}
+				</ul>
+			)
+			case 'ordered': return (
+				<ol>
+					{data.items.map((orderedItem, index) => (
+						<li key={index}> {orderedItem.content} </li>
+					))}
+				</ol>
+			)
+		}
+	}
+
+	const CustomRenderers = {
+		list: ListRenderer,
+	}
+
 	return (
 		<NoteCardContainer
 			onClick={onClick}
@@ -381,8 +412,7 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 			<div className='main-container'>
 				<div className='content-container'>
 					<div className='title'> {(note.title.length > 30) ? `${note.title.slice(0, 30)}…` : note.title} </div>
-					<div className='content-preview-temp'> [ ... ] </div>
-					{/* <div className='content-preview'> <Output data={note.content ?? ''} /> </div> */}
+					<div className='content-preview'> <Output renderers={CustomRenderers} data={note.content ?? ''} /> </div>
 				</div>
 				{(note.created_by === currentUserId) && (
 					<div className='action-container'>

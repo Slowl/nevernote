@@ -51,7 +51,7 @@ const AvatarContainer = styled.div<{ avatar?: AvatarProps['avatar']; size: Avata
 	background-size: cover;
 	border: 1px solid var(--color-grey-2);
 	border-radius: 50%;
-	font-size: .52rem;
+	font-size: .4rem;
 	flex-shrink: 0;
 `
 //#endregion

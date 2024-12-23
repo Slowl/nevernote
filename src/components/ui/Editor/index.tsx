@@ -11,7 +11,7 @@ import { EditorjsPlugins } from './config'
 //#region STYLES
 const EditorContainer = styled.div`
 	width: 100%; height: 100%;
-	font-weight: 500;
+	font-weight: 400;
 	::selection {
 		background: var(--color-grey-1);
 		color: var(--color-black-2);
@@ -198,7 +198,11 @@ const Editor = memo(({ configuration, onChange }: {
 							if (
 								configuration.data?.blocks
 								&& (configuration.data?.blocks.length > 0)
-								&& (noteContent.blocks[updatedBlockIndex].type === 'checklist')
+								&& (
+									noteContent.blocks[updatedBlockIndex].type === 'checklist'
+									||
+									(noteContent.blocks[updatedBlockIndex].type === 'list') && noteContent.blocks[updatedBlockIndex].data.style === 'checklist'
+								)
 							) {
 								if (throttlePause) return
 								throttlePause = true

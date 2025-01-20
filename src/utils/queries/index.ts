@@ -15,6 +15,7 @@ export const getNote = ({ noteId }: { noteId: string }) => {
 				updated_by,
 				updated_at,
 				is_archived,
+				is_bookmarked,
 				color,
 				shared_with,
 				public_note_id,
@@ -43,12 +44,37 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_by,
 					updated_at,
 					is_archived,
+					is_bookmarked,
 					color,
 					shared_with,
 					public_note_id,
 					pinned
 			`)
 				.eq('created_by', currentUserId)
+				.is('is_archived', false)
+				.is('is_bookmarked', false)
+				.order('pinned', { ascending: false })
+				.order('updated_at', { ascending: false })
+		}
+		if (category === NoteCategory.BOOKMARKS) {
+			return supabase.from('notes')
+				.select(`
+					id,
+					title,
+					content,
+					created_by,
+					created_at,
+					updated_by,
+					updated_at,
+					is_archived,
+					is_bookmarked,
+					color,
+					shared_with,
+					public_note_id,
+					pinned
+			`)
+				.eq('created_by', currentUserId)
+				.is('is_bookmarked', true)
 				.is('is_archived', false)
 				.order('pinned', { ascending: false })
 				.order('updated_at', { ascending: false })
@@ -64,6 +90,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_by,
 					updated_at,
 					is_archived,
+					is_bookmarked,
 					color,
 					shared_with,
 					public_note_id,
@@ -85,6 +112,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_by,
 					updated_at,
 					is_archived,
+					is_bookmarked,
 					color,
 					shared_with,
 					public_note_id,
@@ -106,6 +134,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 					updated_by,
 					updated_at,
 					is_archived,
+					is_bookmarked,
 					color,
 					shared_with,
 					public_note_id,
@@ -113,6 +142,7 @@ export const getNotesByCategory = ({ category, currentUserId }: {
 			`)
 				.eq('created_by', currentUserId)
 				.is('is_archived', true)
+				.is('is_bookmarked', false)
 				.order('pinned', { ascending: false })
 				.order('updated_at', { ascending: false })
 		}

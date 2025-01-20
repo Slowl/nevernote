@@ -1,5 +1,5 @@
 import { createBrowserRouter, redirect } from 'react-router-dom'
-import { TbList, TbUsers, TbEyeCheck, TbArchive } from 'react-icons/tb'
+import { TbList, TbBookmarks, TbUsers, TbEyeCheck, TbArchive } from 'react-icons/tb'
 import { supabase } from '@/services/supabase'
 import { NoteCategory } from '@/types/index'
 import App from '@/pages/App'
@@ -12,6 +12,11 @@ export const routes = {
 		path: '/my-notes',
 		icon: TbList,
 		title: 'My notes', 
+	},
+	[NoteCategory.BOOKMARKS]: {
+		path: '/bookmarks',
+		icon: TbBookmarks,
+		title: 'Bookmarks', 
 	},
 	[NoteCategory.SHARED]: {
 		path: '/shared-with-me',
@@ -44,6 +49,10 @@ export const router = createBrowserRouter([
 			{
 				path: routes[NoteCategory.MY_NOTES].path,
 				element: <NotesList category={NoteCategory.MY_NOTES} currentPageTitle={routes[NoteCategory.MY_NOTES].title} />,
+			},
+			{
+				path: routes[NoteCategory.BOOKMARKS].path,
+				element: <NotesList category={NoteCategory.BOOKMARKS} currentPageTitle={routes[NoteCategory.BOOKMARKS].title} />,
 			},
 			{
 				path: routes[NoteCategory.SHARED].path,

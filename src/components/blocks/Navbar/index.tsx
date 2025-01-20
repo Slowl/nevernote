@@ -63,7 +63,7 @@ const NavContainer = styled.nav`
 		z-index: 999;
 		.top-container {
 			flex-direction: row;
-			gap: 1rem;
+			gap: .8rem;
 			padding-left: 4rem;
 			.logo { display: none; }
 		}
@@ -83,7 +83,7 @@ const NavigationItem = styled.div<{ isCurrent?: boolean }>`
 	align-items: center;
 	justify-content: center;
 	position: relative;
-	width: 38px; height: 38px;
+	width: 36px; height: 36px;
 	padding: .4rem;
 	color: var(--color-white);
 	background-color: var(--color-black-3);

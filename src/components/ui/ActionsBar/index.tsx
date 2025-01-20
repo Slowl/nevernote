@@ -77,7 +77,7 @@ const ActionsBar = ({ actions }: ActionsBarProps) => {
 			{actions.map((action) => (
 				action.popover?.content
 				? (
-					<ActionTrigger>
+					<ActionTrigger key={action.label}>
 						<Popover {...action.popover?.options}>
 							<PopoverTrigger>
 								<span> {action.label} </span> <action.icon />
@@ -89,7 +89,7 @@ const ActionsBar = ({ actions }: ActionsBarProps) => {
 					</ActionTrigger>
 				)
 				: (
-					<ActionTrigger onClick={action.event}>
+					<ActionTrigger key={action.label} onClick={action.event}>
 						<span> {action.label} </span> <action.icon />
 					</ActionTrigger>
 				)

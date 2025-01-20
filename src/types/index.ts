@@ -3,6 +3,7 @@ import { IconType } from  'react-icons'
 
 export enum NoteCategory {
 	MY_NOTES = 'MY_NOTES',
+	BOOKMARKS = 'BOOKMARKS',
 	SHARED = 'SHARED',
 	PUBLIC = 'PUBLIC',
 	ARCHIVED = 'ARCHIVED'

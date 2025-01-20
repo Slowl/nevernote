@@ -235,7 +235,7 @@ export const NotesList = memo(({ category, currentPageTitle }: {
 
 	return (
 		<NoteCardListContainer isVisible={isMobileListNoteVisible}>
-			{notes.map((note: Tables<'notes'> & { profiles?: Tables<'profiles'> }) => (
+			{notes.map((note) => (
 				<NoteCard
 					onClick={() => handleSelectNote(note)}
 					note={note}

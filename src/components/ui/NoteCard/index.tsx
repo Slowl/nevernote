@@ -1,8 +1,7 @@
-import { memo } from 'react'
 import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useInsertMutation, useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
-import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical, TbPin, TbPinnedOff, TbPinned } from 'react-icons/tb'
+import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbBookmark, TbBookmarkFilled, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical, TbPin, TbPinnedOff, TbPinned } from 'react-icons/tb'
 import Output from 'editorjs-react-renderer'
 import { supabase } from '@/services/supabase'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
@@ -11,6 +10,7 @@ import { ToastTemplates } from '@/components/ui/Toast'
 import PopoverMenu from '@/components/ui/PopoverMenu'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
 import User from '@/components/ui/User'
+import { memo } from 'react'
 
 //#region STYLES
 const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string | null }>`
@@ -190,7 +190,7 @@ const PinContainer = styled.div<{ isPinned: boolean }>`
 
 interface NoteCardProps {
 	note: Pick<
-		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'public_note_id' | 'shared_with' | 'color' | 'pinned'
+		Tables<'notes'>, 'id' | 'created_by' | 'title' | 'content' | 'is_archived' | 'is_bookmarked' | 'public_note_id' | 'shared_with' | 'color' | 'pinned'
 	> & { profiles?: Tables<'profiles'> };
 	onClick: () => void;
 }
@@ -223,6 +223,25 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 				})
 				console.error('Error while pinning the note: ', error)
 				throw new Error(`Error while pinning the note: ${error}`)
+			}
+		}
+	)
+	const { mutateAsync: bookmarkNote } = useUpdateMutation(
+		supabase.from('notes'),
+		['id'],
+		`id, is_bookmarked, updated_by`,
+		{
+			onSuccess: (bookmarkedNote) => setToast({
+				...ToastTemplates.successNoteArchived,
+				content: bookmarkedNote?.is_bookmarked ? 'Note successfully bookmarked' : 'Note removed from bookmarks'
+			}),
+			onError: (error) => {
+				setToast({
+					...ToastTemplates.errorNote,
+					content: viewedNote?.is_bookmarked ? 'Error while removing from bookmarks...' : 'Error while bookmarking...'
+				})
+				console.error('Error while adding/removing from bookmarks: ', error)
+				throw new Error(`Error while adding/removing from bookmarks: ${error}`)
 			}
 		}
 	)
@@ -334,6 +353,15 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 				: pinNote({ id: note.id, pinned: true }),
 		},
 		{
+			title: note.is_bookmarked ? 'Remove from bookmarks' : 'Bookmark',
+			icon: note.is_bookmarked ? TbBookmarkFilled : TbBookmark,
+			event: () => currentUserId && bookmarkNote({
+				id: note.id,
+				is_bookmarked: !(note.is_bookmarked),
+				updated_by: currentUserId,
+			}),
+		},
+		{
 			title: note.public_note_id ? 'Remove from public' : 'Publish publicly',
 			icon: note.public_note_id ? TbEyeOff : TbEyeShare,
 			event: () => note.public_note_id
@@ -370,7 +398,6 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 			items: { content: string; meta?: { checked: boolean }; }[];
 		};
 	}) => {
-
 		switch (data.style) {
 			case 'checklist': return (
 				data.items.map((checklistItem, index) => (

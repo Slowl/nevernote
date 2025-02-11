@@ -171,7 +171,7 @@ const Editor = memo(({ configuration, onChange }: {
 
 	//#region SETUP
 	const editorRef = useRef<EditorJS>(null)
-	const setContent = useNoteStore((state) => state.setContent)
+	const { setContent } = useNoteStore()
 	//#endregion
 
 	//#region CORE

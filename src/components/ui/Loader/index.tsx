@@ -24,6 +24,7 @@ const LoaderContainer = styled.div`
 //#endregion
 
 const Loader = () => {
+
 	return (
 		<LoaderContainer>
 			<TbLoader2 />

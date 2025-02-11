@@ -108,10 +108,8 @@ export const NotesListLayout = () => {
 	const navigate = useNavigate()
 	const [searchParams, setSearchParams] = useSearchParams()
 	const [listTitle, setListTitle] = useState('')
-	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
-	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
-	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
-	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
+	const { setIsNoteFormLoading, resetViewedNote } = useNoteStore()
+	const { isMobileListNoteVisible, setIsMobileListNoteVisible } = useGeneralStore()
 	//#endregion
 
 	//#region EVENTS
@@ -178,11 +176,9 @@ export const NotesList = memo(({ category, currentPageTitle }: {
 	//#region SETUP
 	const { setListTitle }: { setListTitle: Dispatch<SetStateAction<string>> } = useOutletContext()
 	const [_, setSearchParams] = useSearchParams()
-	const selectedNote = useNoteStore((state) => state.viewedNote)
-	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
-	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
-	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
-	const currentUserId = useUserStore((state) => state.currentUserId)
+	const { currentUserId } = useUserStore()
+	const { viewedNote, setIsNoteFormLoading } = useNoteStore()
+	const { isMobileListNoteVisible, setIsMobileListNoteVisible } = useGeneralStore()
 	//#endregion
 
 	//#region CORE
@@ -210,12 +206,12 @@ export const NotesList = memo(({ category, currentPageTitle }: {
 	const handleSelectNote = useCallback(
 		(note: Tables<'notes'>) => {
 			setIsMobileListNoteVisible(false)
-			if ((note.id !== selectedNote?.id)) {
+			if ((note.id !== viewedNote?.id)) {
 				setSearchParams((previousSearchParams) => ({ ...previousSearchParams, viewed: note.id }))
 				setIsNoteFormLoading(true)
 			}
 		},
-		[selectedNote?.id],
+		[viewedNote?.id],
 	)
 	//#endregion
 

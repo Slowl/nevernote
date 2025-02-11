@@ -144,11 +144,9 @@ const Navbar = () => {
 	const navigate = useNavigate()
 	const { pathname } = useLocation();
 	const [searchParams, setSearchParams] = useSearchParams()
-	const currentUserId = useUserStore((state) => state.currentUserId)
-	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
-	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
-	const isMobileListNoteVisible = useGeneralStore((state) => state.isMobileListNoteVisible)
-	const setIsMobileListNoteVisible = useGeneralStore((state) => state.setIsMobileListNoteVisible)
+	const { currentUserId } = useUserStore()
+	const { resetViewedNote, setIsNoteFormLoading } = useNoteStore()
+	const { isMobileListNoteVisible, setIsMobileListNoteVisible } = useGeneralStore()
 	//#endregion
 
 	//#region CORE

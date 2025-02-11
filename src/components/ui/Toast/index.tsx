@@ -56,8 +56,7 @@ const ToastContainer = styled.div<{ isVisible: boolean, type: ToastType }>`
 
 const Toast = () => {
 
-	const toast = useGeneralStore((state) => state.toast)
-	const setToast = useGeneralStore((state) => state.setToast)
+	const { toast, setToast } = useGeneralStore()
 	const toastTimeout = useRef<NodeJS.Timeout | undefined>(undefined)
 
 	useEffect(

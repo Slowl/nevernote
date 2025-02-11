@@ -49,6 +49,7 @@ interface UserProps {
 }
 
 const User = ({ firstName, lastName, avatar, size }: UserProps) => {
+
 	return (
 		<UserContainer>
 			<Avatar firstName={firstName} lastName={lastName} avatar={avatar} size={size} />

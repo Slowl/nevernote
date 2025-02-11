@@ -89,9 +89,18 @@ const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string
 					line-height: 1rem;
 					margin: 0;
 					padding-left: 15px;
+					> div {
+						display: flex;
+						align-items: baseline !important;
+					}
+				}
+				> div {
+					display: flex;
+					padding-bottom: .7rem;
 				}
 				input[type='checkbox'] {
-					margin: 0px 10px 7px 0;
+					transform: translateY(1px);
+					margin: 0px 7px 7px 0;
 					width: 14px !important; height: 14px !important;
 				}
 				a {
@@ -200,10 +209,9 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 	//#region SETUP
 	const navigate = useNavigate()
 	const { pathname } = useLocation()
-	const viewedNote = useNoteStore((state) => state.viewedNote)
-	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
-	const currentUserId = useUserStore((state) => state.currentUserId)
-	const setToast = useGeneralStore((state) => state.setToast)
+	const { currentUserId } = useUserStore()
+	const { viewedNote, setIsNoteFormLoading } = useNoteStore()
+	const { setToast } = useGeneralStore()
 	//#endregion
 
 	//#region CORE

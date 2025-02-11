@@ -28,8 +28,7 @@ const App = () => {
 	const { pathname } = useLocation()
 	const session = useLoaderData() as Session | null
 	const currentSession = useSupabaseSession(supabase, session)
-	const setCurrentUserId = useUserStore((state) => state.setCurrentUserId)
-	const resetCurrentUser = useUserStore((state) => state.resetCurrentUser)
+	const { setCurrentUserId, resetCurrentUser } = useUserStore()
 	//#endregion
 
 	//#region CORE

@@ -62,14 +62,9 @@ const FormNote = memo(() => {
 	const { pathname } = useLocation()
 	const [searchParams, setSearchParams] = useSearchParams()
 	const viewedNoteId = searchParams.get('viewed')
-	const viewedNote = useNoteStore((state) => state.viewedNote)
-	const isNoteFormLoading = useNoteStore((state) => state.isNoteFormLoading)
-	const setViewedNote = useNoteStore((state) => state.setViewedNote)
-	const setIsNoteFormLoading = useNoteStore((state) => state.setIsNoteFormLoading)
-	const resetViewedNote = useNoteStore((state) => state.resetViewedNote)
-	const currentUserId = useUserStore((state) => state.currentUserId)
-	const setToast = useGeneralStore((state) => state.setToast)
-	const isToolbarActionsVisible = useGeneralStore((state) => state.isToolbarActionsVisible)
+	const { currentUserId } = useUserStore()
+	const { viewedNote, isNoteFormLoading, setViewedNote, setIsNoteFormLoading, resetViewedNote } = useNoteStore()
+	const { setToast, isToolbarActionsVisible} = useGeneralStore()
 	//#endregion
 	
 	//#region CORE
@@ -241,37 +236,8 @@ const FormHeadContainer = styled.div`
 		}
 	}
 
-	.action-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		flex-shrink: 0;
-		position: absolute;
-		right: 25px;
-		top: 20px;
-
-		.action-button {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			width: 36px; height: 36px;
-			padding: .1rem;
-			font-size: 1.3rem;
-			border-radius: 50%;
-			cursor: pointer;
-			transition: .2s;
-
-			&:hover {
-				background-color: var(--color-black-5);
-			}
-		}
-	}
 	@media screen and (max-width: 650px) {
 		width: calc(100% - 35px);
-		.action-container {
-			right: 15px;
-			top: 10px;
-		}
 	}
 `
 //#endregion
@@ -279,7 +245,7 @@ const FormHeadContainer = styled.div`
 const FormHead = ({ viewedNote }: { viewedNote: NoteState['viewedNote'] }) => {
 
 	//#region SETUP
-	const setTitle = useNoteStore((state) => state.setTitle)
+	const { setTitle } = useNoteStore()
 	//#endregion
 
 	return (
@@ -290,11 +256,6 @@ const FormHead = ({ viewedNote }: { viewedNote: NoteState['viewedNote'] }) => {
 				onChange={(event => setTitle(event.target.value))}
 				value={viewedNote?.title}
 			/>
-			{/* <div className='action-container'>
-				<div className='action-button'>
-					<TbSettings />
-				</div>
-			</div> */}
 		</FormHeadContainer>
 	)
 }
@@ -450,8 +411,7 @@ const FormToolBar = ({
 	const editorElement = document.getElementById(editorId)
 	const setToast = useGeneralStore((state) => state.setToast)
 	const storedActionsVisible = localStorage.getItem('isActionsVisible') && JSON.parse(localStorage.getItem('isActionsVisible') ?? '')
-	const isToolbarActionsVisible = useGeneralStore((state) => state.isToolbarActionsVisible)
-	const setIsToolbarActionsVisible = useGeneralStore((state) => state.setIsToolbarActionsVisible)
+	const { isToolbarActionsVisible, setIsToolbarActionsVisible } = useGeneralStore()
 	//#endregion
 
 	//#region CORE
@@ -689,9 +649,8 @@ const ColorContainer = styled.div<{ color: string, isSelected: boolean }>`
 //#endregion
 const ColorPicker = () => {
 
-	const viewedNote = useNoteStore((state) => state.viewedNote)
-	const setViewedNote = useNoteStore((state) => state.setViewedNote)
-	const colors = ['#066aff', '#FF674D', '#22a24a', 'transparent']
+	const { viewedNote, setViewedNote } = useNoteStore()
+	const colors = ['#066AFF', '#FF674D', '#22A24A', 'transparent']
 
 	const { mutateAsync: updateColor } = useUpdateMutation(
 		supabase.from('notes'),

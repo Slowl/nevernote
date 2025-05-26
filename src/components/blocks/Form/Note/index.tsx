@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink, TbArrowBackUp, TbArrowForwardUp, TbChevronDown, TbChevronUp, TbColorSwatch } from 'react-icons/tb'
@@ -65,6 +65,7 @@ const FormNote = memo(() => {
 	const { currentUserId } = useUserStore()
 	const { viewedNote, isNoteFormLoading, setViewedNote, setIsNoteFormLoading, resetViewedNote } = useNoteStore()
 	const { setToast, isToolbarActionsVisible} = useGeneralStore()
+	const [isSaving, setSaving] = useState(false)
 	//#endregion
 	
 	//#region CORE
@@ -142,6 +143,7 @@ const FormNote = memo(() => {
 	//#region EVENTS
 	const handleCreateOrUpdate = async (note: typeof viewedNote) => {
 		if (currentUser && note?.title) {
+			setSaving(true)
 			if (note?.id) {
 				try {
 					await updateNote({
@@ -154,6 +156,8 @@ const FormNote = memo(() => {
 				} catch (error) {
 					console.error('Error: ', error)
 					throw new Error(`Error: ${error}`)
+				} finally {
+					setSaving(false)
 				}
 			} else {
 				try {
@@ -167,6 +171,8 @@ const FormNote = memo(() => {
 				} catch (error) {
 					console.error('Error: ', error)
 					throw new Error(`Error: ${error}`)
+				} finally {
+					setSaving(false)
 				}
 			}
 		}
@@ -206,6 +212,7 @@ const FormNote = memo(() => {
 				fetchedNote={fetchedNote}
 				currentUser={currentUser}
 				handleCreateOrUpdate={handleCreateOrUpdate}
+				isSaving={isSaving}
 			/>
 		</FormNoteContainer>
 	)
@@ -394,17 +401,37 @@ const ActionsBarTrigger = styled.div<{ isActionsVisible: boolean }>`
 		bottom: ${({ isActionsVisible }) => isActionsVisible ? '-2px' : '10px'};
 	}
 `
+
+const AutoSaveContainer = styled.div`
+	@keyframes fadeIn {
+		0% { opacity: 0; }
+		20% { opacity: 1; }
+		50% { opacity: 1; }
+		80% { opacity: 1; }
+		100% { opacity: 0; }
+	}
+	
+	position: absolute;
+	right: 0px;
+	top: -25px;
+	opacity: 0;
+	font-size: .85rem;
+	color: var(--color-grey-2);
+	animation: fadeIn 2s;
+`
 //#endregion
 const FormToolBar = ({
 	viewedNote,
 	fetchedNote,
 	currentUser,
 	handleCreateOrUpdate,
+	isSaving,
 }: {
 	viewedNote: NoteState['viewedNote'];
 	fetchedNote: Tables<'notes'> | null | undefined;
 	currentUser: Pick<Tables<'profiles'>, 'id' | 'first_name' |'last_name' | 'avatar'> | null | undefined;
 	handleCreateOrUpdate: (note: NoteState['viewedNote']) => Promise<void>;
+	isSaving: boolean;
 }) => {
 
 	//#region SETUP
@@ -412,6 +439,7 @@ const FormToolBar = ({
 	const setToast = useGeneralStore((state) => state.setToast)
 	const storedActionsVisible = localStorage.getItem('isActionsVisible') && JSON.parse(localStorage.getItem('isActionsVisible') ?? '')
 	const { isToolbarActionsVisible, setIsToolbarActionsVisible } = useGeneralStore()
+	const [isAnimationTriggered, setIsAnimationTriggered] = useState(false)
 	//#endregion
 
 	//#region CORE
@@ -431,6 +459,19 @@ const FormToolBar = ({
 	useEffect(
 		() => {(storedActionsVisible !== null) && setIsToolbarActionsVisible(storedActionsVisible)},
 		[],
+	)
+
+	useEffect(
+		() => {
+			if (isSaving) {
+				setIsAnimationTriggered(true)
+				setTimeout(
+					() => setIsAnimationTriggered(false),
+					2500
+				)
+			}
+		},
+		[isSaving]
 	)
 	//#endregion
 
@@ -482,6 +523,7 @@ const FormToolBar = ({
 
 	return (
 		<FormToolbar>
+			{isAnimationTriggered && <AutoSaveContainer> saving ... </AutoSaveContainer>}
 			{currentUser && (
 				<>
 					<ActionsBarContainer isVisible={isToolbarActionsVisible}>
@@ -592,7 +634,7 @@ const FormToolBar = ({
 			<div className='note-actions'>
 				{(currentUser) && (
 					<Button
-						isDisabled={!(viewedNote?.title)}
+						isDisabled={(!(viewedNote?.title) || (isSaving))}
 						onClick={
 							() => handleCreateOrUpdate(viewedNote)
 							.then(() => setToast((viewedNote?.id) ? ToastTemplates.successNoteUpdate : ToastTemplates.successNoteCreate))

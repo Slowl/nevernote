@@ -135,7 +135,7 @@ const EditorContainer = styled.div`
 			color: var(--color-grey-0);
 		}
 	}
- 
+
 	.cdx-list__checkbox, .cdx-list__item, .cdx-checklist__item  {
 		.cdx-list__checkbox-check, .cdx-checklist__item-checkbox-check {
 			width: 18px; height: 18px;
@@ -158,15 +158,15 @@ const EditorContainer = styled.div`
 	}
 
 	.cdx-list__checkbox--checked, .cdx-checklist__item--checked .cdx-checklist__item-checkbox:not(.cdx-list__checkbox--checked .cdx-checklist__item-checkbox--no-hover):hover .cdx-list__checkbox-check {
-    background: var(--color-grey-2);
-    border-color: var(--color-grey-2);
-  }
+		background: var(--color-grey-2);
+		border-color: var(--color-grey-2);
+	}
 `
 //#endregion
 
 const Editor = memo(({ configuration, onChange }: {
 	configuration: EditorConfig;
-	onChange?: (note: OutputData) => Promise<void>;
+	onChange?: (note: OutputData) => void;
 }) => {
 
 	//#region SETUP
@@ -175,10 +175,8 @@ const Editor = memo(({ configuration, onChange }: {
 	//#endregion
 
 	//#region CORE
-	let throttlePause: boolean;
 	useEffect(
 		() => {
-			let throttleTimeout: NodeJS.Timeout
 			if (!editorRef.current) {
 				const editor = new EditorJS({
 					//@ts-ignore
@@ -188,32 +186,12 @@ const Editor = memo(({ configuration, onChange }: {
 						undo.initialize(configuration.data)
 						new DragDrop(editor, '1px dotted #fff')
 					},
-					onChange: (api) => {
-						requestAnimationFrame(async () => {
-
-							const updatedBlockIndex = api.blocks.getCurrentBlockIndex()
-							const noteContent = await api.saver.save()
-							setContent(noteContent)
-
-							if (
-								configuration.data?.blocks
-								&& (configuration.data?.blocks.length > 0)
-								&& (
-									noteContent.blocks[updatedBlockIndex].type === 'checklist'
-									||
-									(noteContent.blocks[updatedBlockIndex].type === 'list') && noteContent.blocks[updatedBlockIndex].data.style === 'checklist'
-								)
-							) {
-								if (throttlePause) return
-								throttlePause = true
-								
-								throttleTimeout = setTimeout(() => {
-									onChange && onChange(noteContent)
-									
-									throttlePause = false
-								}, 700)
-							}
-						})
+					onChange: async (api) => {
+						const noteContent = await api.saver.save()
+						setContent(noteContent)
+						if (onChange) {
+							debounce(() => onChange(noteContent), 1500)()
+						}
 					},
 					...configuration,
 				})
@@ -222,7 +200,6 @@ const Editor = memo(({ configuration, onChange }: {
 
 			return () => {
 				editorRef.current?.destroy && editorRef.current.destroy()
-				clearTimeout(throttleTimeout)
 			}
 		},
 		[configuration.holder]
@@ -239,3 +216,23 @@ const Editor = memo(({ configuration, onChange }: {
 })
 
 export default Editor
+
+function debounce<F extends (...args: any[]) => any>(
+	func: F,
+	delay: number
+): (...args: Parameters<F>) => void {
+	let timeoutId: ReturnType<typeof setTimeout> | null = null
+
+	return function(this: ThisParameterType<F>, ...args: Parameters<F>): void {
+		const context = this
+
+		if (timeoutId !== null) {
+			clearTimeout(timeoutId)
+		}
+
+		timeoutId = setTimeout(() => {
+			func.apply(context, args)
+			timeoutId = null
+		}, delay)
+	}
+}

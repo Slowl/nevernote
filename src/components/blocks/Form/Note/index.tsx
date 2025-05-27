@@ -7,6 +7,7 @@ import { useInsertMutation, useQuery, useUpdateMutation } from '@supabase-cache-
 import { supabase } from '@/services/supabase'
 import type { Tables } from '@/types/database'
 import { getNote, getUser } from '@/utils/queries'
+import { powerUsers } from '@/utils/constants'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import type { NoteState } from '@/store/index'
 import { ToastTemplates } from '@/components/ui/Toast'
@@ -66,6 +67,8 @@ const FormNote = memo(() => {
 	const { viewedNote, isNoteFormLoading, setViewedNote, setIsNoteFormLoading, resetViewedNote } = useNoteStore()
 	const { setToast, isToolbarActionsVisible} = useGeneralStore()
 	const [isSaving, setSaving] = useState(false)
+	// Only because we are two, and I don't have much time to spend on this.
+	const oneOfPowerUser = powerUsers.find((user) => user.id !== currentUserId)
 	//#endregion
 	
 	//#region CORE
@@ -167,6 +170,7 @@ const FormNote = memo(() => {
 						created_by: currentUser.id,
 						updated_at: new Date(),
 						is_archived: false,
+						shared_with: powerUsers.some((user) => user.id === currentUserId) ? [].concat(oneOfPowerUser?.id) : null
 					}])
 				} catch (error) {
 					console.error('Error: ', error)

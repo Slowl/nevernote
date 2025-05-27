@@ -1,11 +1,12 @@
 import { styled } from '@linaria/react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useInsertMutation, useDeleteMutation, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
-import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbBookmark, TbBookmarkFilled, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical, TbPin, TbPinnedOff, TbPinned } from 'react-icons/tb'
+import { TbUsers, TbEyeShare, TbEyeCheck, TbEyeOff, TbBookmark, TbBookmarkFilled, TbArchive, TbArchiveOff, TbTrash, TbCheck, TbX, TbDotsVertical, TbPin, TbPinnedOff, TbPinned, TbUsersPlus, TbUsersMinus } from 'react-icons/tb'
 import Output from 'editorjs-react-renderer'
 import { supabase } from '@/services/supabase'
 import { useGeneralStore, useNoteStore, useUserStore } from '@/store/index'
 import type { Tables } from '@/types/database'
+import { powerUsers } from '@/utils/constants'
 import { ToastTemplates } from '@/components/ui/Toast'
 import PopoverMenu from '@/components/ui/PopoverMenu'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/Tooltip'
@@ -212,6 +213,8 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 	const { currentUserId } = useUserStore()
 	const { viewedNote, setIsNoteFormLoading } = useNoteStore()
 	const { setToast } = useGeneralStore()
+	// Only because we are two, and I don't have much time to spend on this.
+	const oneOfPowerUser = powerUsers.find((user) => user.id !== currentUserId)
 	//#endregion
 
 	//#region CORE
@@ -250,6 +253,27 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 				})
 				console.error('Error while adding/removing from bookmarks: ', error)
 				throw new Error(`Error while adding/removing from bookmarks: ${error}`)
+			}
+		}
+	)
+	const { mutateAsync: shareNote } = useUpdateMutation(
+		supabase.from('notes'),
+		['id'],
+		`id, shared_with, updated_by`,
+		{
+			onSuccess: (sharedNote) => setToast({
+				...ToastTemplates.successNoteArchived,
+				content: (sharedNote?.shared_with !== null) ? `Note successfully shared with ${oneOfPowerUser?.name}` : `Note successfully removed from ${oneOfPowerUser?.name}`
+			}),
+			onError: (error) => {
+				setToast({
+					...ToastTemplates.errorNote,
+					content: (viewedNote?.shared_with !== null)
+						? 'Error while making it private...'
+						: 'Error while sharing...'
+				})
+				console.error('Error while sharing/removing from shared notes: ', error)
+				throw new Error(`Error while sharing/removing from shared notes: ${error}`)
 			}
 		}
 	)
@@ -369,6 +393,19 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 				updated_by: currentUserId,
 			}),
 		},
+		(powerUsers.some((user) => user.id === currentUserId)) && (
+			{
+				title: (note.shared_with && note.shared_with?.length > 0) ? `Remove from ${oneOfPowerUser?.name}` : `Share with ${oneOfPowerUser?.name}`,
+				icon: note.shared_with !== null ? TbUsersMinus : TbUsersPlus,
+				event: () => (note.shared_with !== null)
+					? shareNote({ id: note.id, shared_with: null, updated_by: currentUserId })
+					: shareNote({
+							id: note.id,
+							shared_with: [].concat(oneOfPowerUser?.id),
+							updated_by: currentUserId
+						}),
+			}
+		),
 		{
 			title: note.public_note_id ? 'Remove from public' : 'Publish publicly',
 			icon: note.public_note_id ? TbEyeOff : TbEyeShare,
@@ -452,7 +489,7 @@ const NoteCard = memo(({ note, onClick }: NoteCardProps) => {
 				{(note.created_by === currentUserId) && (
 					<div className='action-container'>
 						<div className='action-button'>
-							<PopoverMenu list={menuList} options={{ placement: 'right-start' }}>
+							<PopoverMenu list={menuList.filter(Boolean) as any} options={{ placement: 'right-start' }}>
 								<TbDotsVertical />
 							</PopoverMenu>
 						</div>

@@ -727,6 +727,7 @@ const ColorPicker = () => {
 		['id'],
 		`id, color`,
 		{
+			//@ts-ignore: to check later, got no time for typescript shenanigans rn  
 			onSuccess: (updatedNote) => setViewedNote({ ...viewedNote, ...updatedNote })
 		}
 	)

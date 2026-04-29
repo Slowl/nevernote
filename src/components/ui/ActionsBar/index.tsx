@@ -4,7 +4,7 @@ import { IconType } from 'react-icons'
 import { Popover, PopoverContent, PopoverOptions, PopoverTrigger } from '@/components/ui/Popover'
 
 const ActionsBarContainer = styled.div`
-	min-width: 25rem;
+	min-width: 32rem;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -24,7 +24,7 @@ const ActionsBarContainer = styled.div`
 	}
 	
 	@media screen and (max-width: 650px) {
-		min-width: 17rem;
+		min-width: 23rem;
 	}
 `
 
@@ -32,20 +32,20 @@ const ActionTrigger = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 1rem;
+	gap: .5rem;
 	background-color: var(--color-black-1);
 	border-right: 1px solid var(--color-black-2);
 	width: 100%;
-	padding: .5rem .7rem;
+	padding: .5rem 0rem;
 	cursor: pointer;
 	user-select: none;
 	transition: .2s;
 	
-	div {
+	* {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 1rem;
+		gap: .5rem;
 	}
 	span {
 		font-size: .75rem;
@@ -55,6 +55,19 @@ const ActionTrigger = styled.div`
 
 	&:hover {
 		background-color: var(--color-black-3);
+	}
+
+	&:last-child {
+		background-color: var(--color-black-3);
+		border: 1px solid var(--color-black-3);
+		width: 40%;
+	}
+	&:first-child {
+		padding-left: .5rem;
+	}
+
+	@media screen and (max-width: 650px) {
+		span { font-size: .7rem; }
 	}
 `
 
@@ -80,7 +93,7 @@ const ActionsBar = ({ actions }: ActionsBarProps) => {
 					<ActionTrigger key={action.label}>
 						<Popover {...action.popover?.options}>
 							<PopoverTrigger>
-								<span> {action.label} </span> <action.icon />
+								{action.label && <span> {action.label} </span>} <action.icon />
 							</PopoverTrigger>
 							<PopoverContent>
 								{action.popover.content}
@@ -90,7 +103,7 @@ const ActionsBar = ({ actions }: ActionsBarProps) => {
 				)
 				: (
 					<ActionTrigger key={action.label} onClick={action.event}>
-						<span> {action.label} </span> <action.icon />
+						{action.label && <span> {action.label} </span>} <action.icon />
 					</ActionTrigger>
 				)
 			))}

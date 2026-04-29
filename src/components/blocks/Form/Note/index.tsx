@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink, TbArrowBackUp, TbArrowForwardUp, TbChevronDown, TbChevronUp, TbColorSwatch } from 'react-icons/tb'
+import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink, TbArrowBackUp, TbArrowForwardUp, TbChevronDown, TbChevronUp, TbColorSwatch, TbSelectAll } from 'react-icons/tb'
 import { styled } from '@linaria/react'
 import { useInsertMutation, useQuery, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
@@ -191,7 +191,10 @@ const FormNote = memo(() => {
 					? <Loader />
 					: (
 						<>
-							<FormHead viewedNote={viewedNote}/>
+							<FormHead
+								viewedNote={viewedNote}
+								handleCreateOrUpdate={handleCreateOrUpdate}
+							/>
 							<FormBody>
 								{
 									((!(isNoteFormLoading) && (fetchedNote?.id)) || !(fetchedNote?.id)) && (
@@ -253,7 +256,13 @@ const FormHeadContainer = styled.div`
 `
 //#endregion
 
-const FormHead = ({ viewedNote }: { viewedNote: NoteState['viewedNote'] }) => {
+const FormHead = ({
+	viewedNote,
+	handleCreateOrUpdate,
+}: {
+	viewedNote: NoteState['viewedNote'];
+	handleCreateOrUpdate: (note: NoteState['viewedNote']) => Promise<void>;
+}) => {
 
 	//#region SETUP
 	const { setTitle } = useNoteStore()
@@ -265,6 +274,7 @@ const FormHead = ({ viewedNote }: { viewedNote: NoteState['viewedNote'] }) => {
 				type='text'
 				placeholder={`Write your note's title ...`}
 				onChange={(event => setTitle(event.target.value))}
+				onBlur={((event) => !!(event.target.value) ? handleCreateOrUpdate(viewedNote) : null)}
 				value={viewedNote?.title}
 			/>
 		</FormHeadContainer>
@@ -491,11 +501,25 @@ const FormToolBar = ({
 				content: successMessage || 'Successfully copied to clipboard!'
 			})
 		} catch (error) {
-			console.error(`An error occured whule copying to clipboard: ${error}`)
+			console.error(`An error occured while copying to clipboard: ${error}`)
 		}
 	}
 
+	const selectAllAction = (elementToSelect: HTMLElement) => {
+		const selection = window.getSelection()
+		const range = document.createRange()
+		
+		range.selectNodeContents(elementToSelect)
+		selection?.removeAllRanges()
+		selection?.addRange(range)
+	}
+
 	const editorActions: ActionsBarProps['actions'] = [
+		{
+			label: 'Select All',
+			icon: TbSelectAll,
+			event: () => editorElement && selectAllAction(editorElement),
+		},
 		{
 			label: 'Undo',
 			icon: TbArrowBackUp,
@@ -515,7 +539,7 @@ const FormToolBar = ({
 			},
 		},
 		{
-			label: 'Hide',
+			label: '',
 			icon: TbChevronDown,
 			event: () => {
 				localStorage.setItem('isActionsVisible', JSON.stringify(false))

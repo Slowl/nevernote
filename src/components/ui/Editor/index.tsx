@@ -190,7 +190,7 @@ const Editor = memo(({ configuration, onChange }: {
 						const noteContent = await api.saver.save()
 						setContent(noteContent)
 						if (onChange) {
-							debounce(() => onChange(noteContent), 1500)()
+							debounce(() => onChange(noteContent), 1000)()
 						}
 					},
 					...configuration,

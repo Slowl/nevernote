@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink, TbArrowBackUp, TbArrowForwardUp, TbChevronDown, TbChevronUp, TbColorSwatch, TbSelectAll } from 'react-icons/tb'
+import { TbDeviceFloppy, TbInfoCircle, TbCopy, TbExternalLink, TbArrowBackUp, TbArrowForwardUp, TbChevronDown, TbChevronUp, TbColorSwatch, TbClipboardCopy } from 'react-icons/tb'
 import { styled } from '@linaria/react'
 import { useInsertMutation, useQuery, useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
@@ -490,12 +490,30 @@ const FormToolBar = ({
 	//#endregion
 
 	//#region EVENTS
-	const copyToClipboard = async ({ textToCopy, successMessage }: {
-		textToCopy: string;
+	const copyElement = async (elementToCopy: HTMLElement | string) => {
+		if (typeof elementToCopy === 'string') {
+			await navigator.clipboard.writeText(elementToCopy)
+		} else {
+			const html = elementToCopy.innerHTML
+			const text = elementToCopy.innerText
+		
+			const htmlBlob = new Blob([html], { type: 'text/html' })
+			const textBlob = new Blob([text], { type: 'text/plain' })
+		
+			await navigator.clipboard.write([
+				new ClipboardItem({
+					'text/html': htmlBlob,
+					'text/plain': textBlob,
+				})
+			])
+		}
+	}
+	const copyWithNotification = async ({ elementToCopy, successMessage }: {
+		elementToCopy: HTMLElement | string;
 		successMessage?: string;
 	}) => {	
 		try {
-			await navigator.clipboard.writeText(textToCopy)
+			await copyElement(elementToCopy)
 			setToast({
 				...ToastTemplates.successNoteCreate,
 				content: successMessage || 'Successfully copied to clipboard!'
@@ -505,20 +523,11 @@ const FormToolBar = ({
 		}
 	}
 
-	const selectAllAction = (elementToSelect: HTMLElement) => {
-		const selection = window.getSelection()
-		const range = document.createRange()
-		
-		range.selectNodeContents(elementToSelect)
-		selection?.removeAllRanges()
-		selection?.addRange(range)
-	}
-
 	const editorActions: ActionsBarProps['actions'] = [
 		{
-			label: 'Select All',
-			icon: TbSelectAll,
-			event: () => editorElement && selectAllAction(editorElement),
+			label: 'Copy All',
+			icon: TbClipboardCopy,
+			event: () => editorElement && copyWithNotification({ elementToCopy: editorElement }),
 		},
 		{
 			label: 'Undo',
@@ -646,8 +655,8 @@ const FormToolBar = ({
 									</Button>
 									<Button
 										size='sm'
-										onClick={() => copyToClipboard({
-											textToCopy: `${window.location.origin}/note/${fetchedNote.public_note_id}`,
+										onClick={() => copyWithNotification({
+											elementToCopy: `${window.location.origin}/note/${fetchedNote.public_note_id}`,
 											successMessage: 'Successfully copied the URL to clipboard!'
 										})}
 									>

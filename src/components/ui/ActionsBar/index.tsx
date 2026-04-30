@@ -51,7 +51,10 @@ const ActionTrigger = styled.div`
 		font-size: .75rem;
 		color: var(--color-grey-1);
 	}
-	svg { flex-shrink: 0; }
+	svg {
+		flex-shrink: 0;
+		font-size: .9rem;
+	}
 
 	&:hover {
 		background-color: var(--color-black-3);

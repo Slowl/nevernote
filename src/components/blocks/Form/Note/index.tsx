@@ -494,7 +494,9 @@ const FormToolBar = ({
 		if (typeof elementToCopy === 'string') {
 			await navigator.clipboard.writeText(elementToCopy)
 		} else {
-			const html = elementToCopy.innerHTML
+			const filteredWords = ['Nothing found', 'Text', 'Heading', 'Unordered List', 'Ordered List', 'Checklist', 'Link', 'Delimiter', 'Table', 'Alert', 'Checklist']
+
+			const html = filteredWords.reduce((string, filteredWord) => string.replaceAll(filteredWord, ''), elementToCopy.innerHTML)
 			const text = elementToCopy.innerText
 		
 			const htmlBlob = new Blob([html], { type: 'text/html' })

@@ -97,11 +97,11 @@ const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string
 				}
 				> div {
 					display: flex;
-					padding-bottom: .7rem;
+					padding-bottom: .4rem;
 				}
 				input[type='checkbox'] {
 					transform: translateY(1px);
-					margin: 0px 7px 7px 0;
+					margin: 0px 7px 0px 0;
 					width: 14px !important; height: 14px !important;
 				}
 				a {

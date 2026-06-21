@@ -136,14 +136,46 @@ const EditorContainer = styled.div`
 		}
 	}
 
+	/* new checkboxes */
+	.cdx-list__checkbox {
+		width: 25px;
+		height: 25px;
+		margin-bottom: 10px;
+		.cdx-list__checkbox-check {
+			width: 25px;
+			height: 25px;
+		}
+		svg {
+			width: 25px;
+			height: 25px;
+			top: -1px !important; left: 1px !important;
+		}
+	}
+
+	.cdx-list__checkbox--checked {
+		background: transparent !important;
+		:before {
+			transform: scale(5) !important;
+		}
+	}
+	.cdx-list__item-content {
+		padding-left: 10px;
+		padding-top: 3px;
+	}
+	/* --- */
+
 	.cdx-list__checkbox, .cdx-list__item, .cdx-checklist__item  {
+		.cdx-checklist__item-text {
+			padding-left: 6px;
+			padding-bottom: px;
+		}
 		.cdx-list__checkbox-check, .cdx-checklist__item-checkbox-check {
-			width: 18px; height: 18px;
 			border: 0;
-			border-radius: 2px;
+			border-radius: 4px;
 			background-color: var(--color-grey-0);
 			> svg {
-				left: 0;
+				left: 3px;
+				top: 2px;
 			}
 			&:before {
 				background: var(--color-grey-3);

@@ -32,7 +32,7 @@ const NotesListContainer = styled.div<{ isVisible: boolean }>`
 		padding-top: 3rem;
 		transform: ${({ isVisible }) => (isVisible) ? 'translateY(-65px)' : 'translateY(110%)' };
 		z-index: 998;
-		transition: transform ease .5s;
+		transition: transform ease .35s;
 	}
 `
 const ListTitle = styled.div`

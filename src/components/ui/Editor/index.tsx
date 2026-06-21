@@ -155,7 +155,7 @@ const EditorContainer = styled.div`
 	.cdx-list__checkbox--checked {
 		background: transparent !important;
 		:before {
-			transform: scale(5) !important;
+			transform: scale(3) !important;
 		}
 	}
 	.cdx-list__item-content {
@@ -174,8 +174,8 @@ const EditorContainer = styled.div`
 			border-radius: 4px;
 			background-color: var(--color-grey-0);
 			> svg {
-				left: 3px;
-				top: 2px;
+				left: 0px;
+				top: 0px;
 			}
 			&:before {
 				background: var(--color-grey-3);

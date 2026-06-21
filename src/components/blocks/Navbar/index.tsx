@@ -1,7 +1,7 @@
 import { MouseEvent } from 'react'
 import { styled } from '@linaria/react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
-import { TbLogout2, TbSettings, TbPlus } from 'react-icons/tb'
+import { TbLogout2, TbSettings, TbPlus, TbChevronRight } from 'react-icons/tb'
 import { useQuery } from '@supabase-cache-helpers/postgrest-react-query'
 import { supabase } from '@/services/supabase'
 import { getUser } from '@/utils/queries'
@@ -136,6 +136,38 @@ const CreateNoteButton = styled.div`
 		}
 	}
 `
+
+const ToggleDesktopNoteList = styled.div<{ isOpen: boolean; }>`
+	width: 28px; height: 28px;
+	display: flex;
+	align-items: center; justify-content: center;
+	background-color: var(--color-black-4);
+	outline: 2px solid transparent;
+	outline-offset: -2px;
+	border-radius: 50%;
+	box-sizing: content-box;
+	position: absolute;
+	top: 50%;
+	left: ${({ isOpen }) => isOpen ? '60px' : '63px'};
+	cursor: pointer;
+	transition: .2s;
+	z-index: 999;
+	
+	&:hover {
+		outline: 2px solid var(--color-black-6);
+		outline-offset: -1px;
+	}
+
+	svg {
+		position: relative;
+		left: ${({ isOpen }) => isOpen ? '0px' : '1px'};
+		transform: ${({ isOpen }) => isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+		transition: .2s;
+	}
+	@media screen and (max-width: 650px) {
+		display: none;
+	}
+`
 //#endregion
 
 const Navbar = () => {
@@ -146,7 +178,12 @@ const Navbar = () => {
 	const [searchParams, setSearchParams] = useSearchParams()
 	const { currentUserId } = useUserStore()
 	const { resetViewedNote, setIsNoteFormLoading } = useNoteStore()
-	const { isMobileListNoteVisible, setIsMobileListNoteVisible } = useGeneralStore()
+	const {
+		isMobileListNoteVisible,
+		isDesktopListNoteVisible,
+		setIsMobileListNoteVisible,
+		setIsDesktopListNoteVisible,
+	} = useGeneralStore()
 	//#endregion
 
 	//#region CORE
@@ -208,7 +245,10 @@ const Navbar = () => {
 							<TooltipTrigger>
 								<NavigationItem
 									isCurrent={route.path === pathname}
-									onClick={(event: React.MouseEvent<HTMLDivElement>) => (route.path === pathname) ? toggleMobileNoteList(event) : handleNavigationClick()}
+									onClick={(event: React.MouseEvent<HTMLDivElement>) => (route.path === pathname)
+										? toggleMobileNoteList(event)
+										: handleNavigationClick()
+									}
 								>
 									<route.icon />
 								</NavigationItem>
@@ -218,6 +258,13 @@ const Navbar = () => {
 					</Link>
 				))}
 			</div>
+
+			<ToggleDesktopNoteList
+				isOpen={isDesktopListNoteVisible}
+				onClick={() => setIsDesktopListNoteVisible(!isDesktopListNoteVisible)}
+			>
+				<TbChevronRight />	
+			</ToggleDesktopNoteList>
 
 			<div className='bottom-container'>
 				<div className='desktop-action-container'>

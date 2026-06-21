@@ -23,7 +23,7 @@ const NoteCardContainer = styled.div<{ isViewed: boolean, selectedColor?: string
 	gap: .3rem 0;
 	padding: .5rem;
 	background-color: var(--color-black-2);
-	border: 1px solid ${({ isViewed }) => isViewed ? 'var(--color-grey-2)' : 'var(--color-black-6)'};
+	border: 1px solid ${({ isViewed }) => isViewed ? 'var(--color-grey-1)' : 'var(--color-black-6)'};
 	border-radius: 8px;
 	cursor: pointer;
 	opacity: 1;

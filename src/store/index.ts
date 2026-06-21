@@ -7,6 +7,8 @@ import { Toast } from '@/types/index';
 export interface GeneralState {
 	isMobileListNoteVisible: boolean;
 	setIsMobileListNoteVisible: (isVisible: boolean) => void;
+	isDesktopListNoteVisible: boolean;
+	setIsDesktopListNoteVisible: (isVisible: boolean) => void;
 	isToolbarActionsVisible: boolean;
 	setIsToolbarActionsVisible: (isVisible: boolean) => void;
 	toast?: Toast;
@@ -15,9 +17,11 @@ export interface GeneralState {
 
 export const useGeneralStore = create<GeneralState>()(devtools((set) => ({
 	isMobileListNoteVisible: true,
+	isDesktopListNoteVisible: true,
 	isToolbarActionsVisible: true,
 	toast: undefined,
 	setIsMobileListNoteVisible: (isVisible) => set(() => ({ isMobileListNoteVisible: isVisible })),
+	setIsDesktopListNoteVisible: (isVisible) => set(() => ({ isDesktopListNoteVisible: isVisible })),
 	setIsToolbarActionsVisible: (isVisible) => set(() => ({ isToolbarActionsVisible: isVisible })),
 	setToast: (toastItem) => set(() => ({ toast: toastItem }))
 }), { name: 'GENERAL STORE' }))

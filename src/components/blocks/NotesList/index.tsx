@@ -14,13 +14,26 @@ import Loader from '@/components/ui/Loader'
 
 //#region NOTESLIST CONTAINER
 //#region STYLES
-const NotesListContainer = styled.div<{ isVisible: boolean }>`
+const NotesListContainer = styled.div<{ isMobileVisible: boolean; isDesktopVisible: boolean; }>`
 	display: flex;
 	flex-direction: column;
-	min-width: 20rem; max-width: 20rem;
+	min-width: ${({ isDesktopVisible }) => (isDesktopVisible) ? '20rem' : '0rem' };
+	max-width: ${({ isDesktopVisible }) => (isDesktopVisible) ? '20rem' : '0rem' };
 	position: relative;
 	background-color: var(--color-black-1);
 	border-radius: 0 20px 20px 0;
+	transition:
+		min-width ease .3s,
+		max-width ease .3s,
+		opacity ease .3s
+	;
+	z-index: 0;
+
+	@media (min-width: 1024px) {
+		opacity: ${({ isDesktopVisible }) => (isDesktopVisible) ? 1 : 0 };
+		visibility: ${({ isDesktopVisible }) => (isDesktopVisible) ? 'visible' : 'hidden' };
+		overflow: ${({ isDesktopVisible }) => (isDesktopVisible) ? 'auto' : 'hidden' };
+	}
 
 	@media screen and (max-width: 650px) {
 		flex-direction: column-reverse;
@@ -30,7 +43,7 @@ const NotesListContainer = styled.div<{ isVisible: boolean }>`
 		height: 88svh;
 		border-radius: 20px 20px 0 0;
 		padding-top: 3rem;
-		transform: ${({ isVisible }) => (isVisible) ? 'translateY(-65px)' : 'translateY(110%)' };
+		transform: ${({ isMobileVisible }) => (isMobileVisible) ? 'translateY(-65px)' : 'translateY(110%)' };
 		z-index: 998;
 		transition: transform ease .35s;
 	}
@@ -80,13 +93,13 @@ const BottomContainer = styled.div`
 	flex-grow: 1;
 	overflow-y: auto;
 	scrollbar-color: var(--color-black-3) rgba(0,0,0,0);
-  scrollbar-width: thin;
+	scrollbar-width: thin;
 	@media screen and (max-width: 650px) {
 		padding: .5rem 1rem 1rem;
 		border-top: 1px solid var(--color-black-3);
 	}
 `
-const MobileOverlay = styled.div<{ isVisible: boolean }>`
+const MobileOverlay = styled.div<{ isMobileVisible: boolean }>`
 	display: none;
 	width: 100%; height: 100%;
 	position: fixed;
@@ -96,8 +109,8 @@ const MobileOverlay = styled.div<{ isVisible: boolean }>`
 	z-index: 900;
 	@media screen and (max-width: 650px) {
 		display: block;
-		opacity: ${({ isVisible }) => (isVisible) ? 1 : 0};
-		visibility: ${({ isVisible }) => (isVisible) ? 'visible' : 'hidden'};
+		opacity: ${({ isMobileVisible }) => (isMobileVisible) ? 1 : 0};
+		visibility: ${({ isMobileVisible }) => (isMobileVisible) ? 'visible' : 'hidden'};
 	}
 `
 //#endregion
@@ -109,7 +122,7 @@ export const NotesListLayout = () => {
 	const [searchParams, setSearchParams] = useSearchParams()
 	const [listTitle, setListTitle] = useState('')
 	const { setIsNoteFormLoading, resetViewedNote } = useNoteStore()
-	const { isMobileListNoteVisible, setIsMobileListNoteVisible } = useGeneralStore()
+	const { isMobileListNoteVisible, isDesktopListNoteVisible, setIsMobileListNoteVisible } = useGeneralStore()
 	//#endregion
 
 	//#region EVENTS
@@ -130,7 +143,7 @@ export const NotesListLayout = () => {
 
 	return (
 		<>
-			<NotesListContainer isVisible={isMobileListNoteVisible}>
+			<NotesListContainer isMobileVisible={isMobileListNoteVisible} isDesktopVisible={isDesktopListNoteVisible}>
 				<ListTitle> {listTitle} </ListTitle>
 				<TopContainer>
 					<CreateNoteButton onClick={handleCreateNewNote}>
@@ -141,7 +154,7 @@ export const NotesListLayout = () => {
 					<Outlet context={{ setListTitle }}/>
 				</BottomContainer>
 			</NotesListContainer>
-			<MobileOverlay isVisible={isMobileListNoteVisible} />
+			<MobileOverlay isMobileVisible={isMobileListNoteVisible} />
 		</>
 	)
 }
@@ -149,7 +162,7 @@ export const NotesListLayout = () => {
 
 //#region NOTESLIST
 //#region STYLES
-const NoteCardListContainer = styled.div<{ isVisible: boolean }>`
+const NoteCardListContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 1rem 0;
@@ -178,7 +191,7 @@ export const NotesList = memo(({ category, currentPageTitle }: {
 	const [_, setSearchParams] = useSearchParams()
 	const { currentUserId } = useUserStore()
 	const { viewedNote, setIsNoteFormLoading } = useNoteStore()
-	const { isMobileListNoteVisible, setIsMobileListNoteVisible } = useGeneralStore()
+	const { setIsMobileListNoteVisible } = useGeneralStore()
 	//#endregion
 
 	//#region CORE
@@ -230,7 +243,7 @@ export const NotesList = memo(({ category, currentPageTitle }: {
 	}
 
 	return (
-		<NoteCardListContainer isVisible={isMobileListNoteVisible}>
+		<NoteCardListContainer>
 			{notes.map((note) => (
 				<NoteCard
 					onClick={() => handleSelectNote(note)}

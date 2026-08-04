@@ -17,6 +17,10 @@ const EditorContainer = styled.div`
 		color: var(--color-black-2);
 		border-radius: 4px;
 	}
+	
+	a {
+		color: #0083db !important;
+	}
 
 	.cdx-block {
 		max-width: 100% !important;
@@ -24,7 +28,7 @@ const EditorContainer = styled.div`
 		padding-bottom: 0rem;
 
 		a {
-			color: #0083db;
+			color: #0083db !important;
 		}
 	}
 	.ce-block__content, .ce-toolbar__content {
